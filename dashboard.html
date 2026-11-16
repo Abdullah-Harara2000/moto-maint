@@ -594,14 +594,54 @@ $('pwOff').onclick = () => {
 };
 
 /* التنزيل */
+/* ملف Excel يتجهز في المتصفح وينزل على طول (بدون ما يفتح شيت) */
+const EXCELJS = 'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js';
+let excelLib = null;
+function loadExcel(){
+  if (window.ExcelJS) return Promise.resolve(window.ExcelJS);
+  if (excelLib) return excelLib;
+  excelLib = new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = EXCELJS; sc.onload = () => res(window.ExcelJS); sc.onerror = () => { excelLib = null; rej(new Error('ما قدرت أحمّل أداة Excel. تأكد من الإنترنت.')); }; document.head.appendChild(sc); });
+  return excelLib;
+}
+const isDay = v => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v);
+const isStamp = v => typeof v === 'string' && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(v);
+function toDate(v){ const [d, t] = v.split(' '); const [y, mo, da] = d.split('-').map(Number); const [h, mi] = (t || '0:0').split(':').map(Number); return new Date(Date.UTC(y, mo - 1, da, h, mi)); }
+async function buildXlsx(sheets){
+  const X = await loadExcel();
+  const wb = new X.Workbook(); wb.creator = 'نظام صيانة الدبابات'; wb.created = new Date();
+  sheets.forEach(sh => {
+    const ws = wb.addWorksheet(sh.name.slice(0, 31), { views: [{ rightToLeft: true, state: 'frozen', ySplit: 1 }] });
+    ws.addRow(sh.header);
+    sh.rows.forEach(r => ws.addRow(r.map(v => (isDay(v) || isStamp(v)) ? toDate(v) : (v == null ? '' : v))));
+    const head = ws.getRow(1);
+    head.height = 22;
+    head.eachCell(c => { c.font = { bold: true, color: { argb: 'FFFFFFFF' }, name: 'Arial', size: 11 }; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0E7C66' } }; c.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; });
+    sh.header.forEach((h, i) => {
+      const col = ws.getColumn(i + 1);
+      const vals = sh.rows.map(r => r[i]);
+      if (vals.some(isStamp)) col.numFmt = 'yyyy-mm-dd hh:mm';
+      else if (vals.some(isDay)) col.numFmt = 'yyyy-mm-dd';
+      const len = Math.max(String(h).length, ...vals.slice(0, 500).map(v => String(v == null ? '' : v).length));
+      col.width = Math.min(45, Math.max(10, len + 3));
+      col.alignment = { vertical: 'middle', horizontal: typeof vals.find(v => v !== '' && v != null) === 'number' ? 'center' : 'right' };
+    });
+    head.eachCell(c => { c.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; });
+    if (sh.rows.length) ws.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: sh.header.length } };
+  });
+  return wb.xlsx.writeBuffer();
+}
 function excel(sheets, box, btn){
   const m = $(box);
-  if (PREVIEW) { m.className = 'xl on'; m.innerHTML = `<i class="ti ti-info-circle"></i>في المعاينة ما فيه تنزيل. بعد النشر يتجهز ملف Excel فيه ${sheets.map(s => `«${esc(s.name)}» (${s.rows.length} صف)`).join(' و')}.`; return; }
-  btn.disabled = true; m.className = 'xl on'; m.innerHTML = '<i class="ti ti-loader-2"></i>جاري تجهيز الملف…';
-  call('exportXlsx', sheets).then(r => {
-    btn.disabled = false;
-    m.innerHTML = `<i class="ti ti-circle-check"></i>الملف جاهز: <a href="${esc(r.url)}" target="_blank" rel="noopener">اضغط هنا لتنزيل Excel</a>`;
-  }).catch(e => { btn.disabled = false; m.className = 'xl on bad'; m.textContent = 'ما تجهز الملف: ' + (e.message || e); });
+  const label = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2"></i>جاري التجهيز…'; m.className = 'xl';
+  buildXlsx(sheets).then(buf => {
+    const name = sheets[0].name + ' ' + today() + '.xlsx';
+    const url = URL.createObjectURL(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+    const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    btn.disabled = false; btn.innerHTML = label;
+    m.className = 'xl on'; m.innerHTML = `<i class="ti ti-circle-check"></i>تنزّل الملف «${esc(name)}» (${sheets.map(s => `${esc(s.name)}: ${fmt(s.rows.length)} صف`).join('، ')}).`;
+  }).catch(e => { btn.disabled = false; btn.innerHTML = label; m.className = 'xl on bad'; m.textContent = 'ما تنزّل الملف: ' + (e.message || e); });
 }
 
 /* ========== سجلات الصيانة ========== */

@@ -178,6 +178,28 @@ textarea.inp{height:auto;min-height:96px;padding:12px 14px;resize:vertical}
 .preview-bar a{color:inherit;font-weight:700}
 @media (max-width:520px){.cats{grid-template-columns:repeat(4,1fr)}.cat{font-size:11px;min-height:90px}.cat .ic{width:36px;height:36px;font-size:20px}.sum{grid-template-columns:1fr}}
 @media (max-width:380px){.cats{grid-template-columns:repeat(3,1fr)}}
+/* الدخول بالإيميل */
+.auth{display:flex;justify-content:center;padding:0 0 40px;margin-top:-44px;position:relative;z-index:2}
+.auth[hidden]{display:none!important}
+.acard{background:#fff;border-radius:18px;box-shadow:0 10px 30px rgba(16,40,60,.08);border:1px solid #E4E9EE;width:100%;max-width:420px;padding:22px 20px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:2}
+.acard h2{margin:0;font-size:19px;display:flex;align-items:center;gap:8px}
+.acard h2 i{color:var(--brand);font-size:22px}
+.asub{margin:-4px 0 4px;color:#5B6B7A;font-size:13.5px;line-height:1.7}
+.af{display:flex;flex-direction:column;gap:6px}
+.af[hidden]{display:none!important}
+.af label{font-size:13.5px;font-weight:600;color:#334}
+.af input{height:48px;border:1.5px solid #D5DDE5;border-radius:12px;padding:0 14px;font-size:16px;font-family:inherit;outline:none;background:#fff;width:100%;box-sizing:border-box}
+.af input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(14,124,102,.12)}
+.af input[dir=ltr]{text-align:left}
+.abtn{height:50px;border:0;border-radius:12px;background:var(--brand);color:#fff;font-size:16px;font-weight:700;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
+.abtn:disabled{opacity:.6;cursor:default}
+.alnk{border:0;background:none;color:var(--brand);font-family:inherit;font-size:13.5px;text-decoration:underline;cursor:pointer;align-self:center;padding:4px}
+.alnk[hidden]{display:none!important}
+.amsg{display:none;font-size:13.5px;border-radius:10px;padding:9px 12px;line-height:1.6}
+.amsg.on{display:block}
+.amsg.bad{background:#FBEBEA;color:#B23A33}.amsg.ok{background:#E3F4EF;color:#0A5E4E}
+.who{display:inline-flex;align-items:center;gap:6px}
+.who button{border:0;background:rgba(255,255,255,.18);color:inherit;border-radius:999px;padding:2px 9px;font-size:11.5px;font-family:inherit;cursor:pointer}
 </style>
 </head>
 <body>
@@ -191,6 +213,19 @@ textarea.inp{height:auto;min-height:96px;padding:12px 14px;resize:vertical}
     </div>
   </header>
 
+  <div id="auth" class="auth" hidden>
+    <div class="acard">
+      <h2><i class="ti ti-user-circle"></i><span id="aTitle">تسجيل الدخول</span></h2>
+      <p class="asub" id="aSub">اكتب إيميلك عشان يتسجل باسمك كل شي تسويه.</p>
+      <div class="af" id="aEmailF"><label for="aEmail">الإيميل</label><input id="aEmail" type="email" dir="ltr" autocomplete="email" inputmode="email" placeholder="name@example.com"></div>
+      <div class="af" id="aNameF" hidden><label for="aName">اسمك</label><input id="aName" autocomplete="name" placeholder="الاسم الأول واسم العائلة"></div>
+      <div class="af" id="aPassF" hidden><label for="aPass" id="aPassLb">كلمة المرور</label><input id="aPass" type="password" dir="ltr" autocomplete="current-password"></div>
+      <div class="af" id="aPass2F" hidden><label for="aPass2">أكّد كلمة المرور</label><input id="aPass2" type="password" dir="ltr" autocomplete="new-password"></div>
+      <button class="abtn" id="aGo" type="button">متابعة</button>
+      <button class="alnk" id="aBack" type="button" hidden>دخول بإيميل ثاني</button>
+      <div class="amsg" id="aMsg"></div>
+    </div>
+  </div>
   <nav class="steps" id="steps"></nav>
 
   <div id="loading" class="loading"><div><div class="spin"></div>جاري التحميل…</div></div>
@@ -310,6 +345,90 @@ textarea.inp{height:auto;min-height:96px;padding:12px 14px;resize:vertical}
 })();
 </script>
 <script>
+/* ========== الدخول بالإيميل وكلمة المرور ========== */
+const AUTH_KEY = 'mm_auth';
+const Auth = {
+  get(){ try { return JSON.parse(localStorage.getItem(AUTH_KEY) || 'null') || {}; } catch (e) { return {}; } },
+  save(token, user){ try { localStorage.setItem(AUTH_KEY, JSON.stringify({ token, user })); } catch (e) {} },
+  token(){ return Auth.get().token || ''; },
+  user(){ return Auth.get().user || null; },
+  logout(){ const u = Auth.user(); try { localStorage.setItem(AUTH_KEY, JSON.stringify({ token:'', user: u ? { email:u.email, name:u.name } : null })); } catch (e) {} },
+  rpc(fn, ...args){
+    return new Promise((res, rej) => {
+      if (!(window.google && google.script && google.script.run)) {
+        return setTimeout(() => {
+          if (fn === 'authStart') res({ ok:true, step: /new/.test(args[0]) ? 'register' : 'login', name:'مستخدم تجريبي' });
+          else res({ ok:true, token:'demo', user:{ email:args[0], name:args[1] && fn === 'authSet' ? args[1] : 'مستخدم تجريبي', admin:true } });
+        }, 300);
+      }
+      google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn](...args);
+    });
+  }
+};
+function authUI(opts){
+  // opts: { title, note, onDone(user) , error }
+  const el = id => document.getElementById(id);
+  const A = { step:'email', email:'', name:'' };
+  const show = (ids, on) => ids.forEach(id => el(id).hidden = !on);
+  const msg = (t, bad) => { const m = el('aMsg'); m.textContent = t || ''; m.className = 'amsg' + (t ? ' on ' + (bad ? 'bad' : 'ok') : ''); };
+  function setStep(step, name){
+    A.step = step; if (name) A.name = name;
+    el('aEmail').disabled = step !== 'email';
+    show(['aNameF'], step === 'register');
+    show(['aPassF'], step !== 'email');
+    show(['aPass2F'], step === 'register' || step === 'reset');
+    el('aBack').hidden = step === 'email';
+    el('aPass').value = ''; el('aPass2').value = '';
+    el('aPass').autocomplete = step === 'login' ? 'current-password' : 'new-password';
+    el('aPassLb').textContent = step === 'login' ? 'كلمة المرور' : (step === 'reset' ? 'كلمة مرور جديدة (6 خانات أو أكثر)' : 'اختر كلمة مرور (6 خانات أو أكثر)');
+    const T = { email:[opts.title || 'تسجيل الدخول', opts.note || 'اكتب إيميلك عشان يتسجل باسمك كل شي تسويه.', 'متابعة'],
+      register:['أول مرة تدخل؟ أهلاً', 'اكتب اسمك واختر كلمة مرور. بعدها تدخل بالإيميل وكلمة المرور بس.', 'إنشاء الحساب والدخول'],
+      login:['أهلاً ' + (A.name || ''), 'اكتب كلمة المرور.', 'دخول'],
+      reset:['كلمة مرور جديدة', 'المدير أعاد تعيين كلمة المرور حقتك. اختر كلمة مرور جديدة.', 'حفظ والدخول'] }[step];
+    el('aTitle').textContent = T[0]; el('aSub').textContent = T[1]; el('aGo').textContent = T[2];
+    setTimeout(() => (step === 'email' ? el('aEmail') : step === 'register' ? el('aName') : el('aPass')).focus(), 60);
+  }
+  function busy(on){ el('aGo').disabled = on; }
+  function done(r){
+    Auth.save(r.token, r.user); msg('');
+    el('auth').hidden = true;
+    opts.onDone && opts.onDone(r.user, r);
+  }
+  function go(){
+    msg('');
+    if (A.step === 'email') {
+      const e = el('aEmail').value.trim().toLowerCase();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) return msg('اكتب إيميل صحيح.', true);
+      A.email = e; busy(true);
+      return Auth.rpc('authStart', e).then(r => { busy(false); if (!r.ok) return msg(r.error, true); setStep(r.step, r.name); })
+        .catch(err => { busy(false); msg('تعذر الاتصال: ' + (err.message || err), true); });
+    }
+    const p = el('aPass').value;
+    if (A.step === 'login') {
+      if (!p) return msg('اكتب كلمة المرور.', true);
+      busy(true);
+      return Auth.rpc('authLogin', A.email, p).then(r => { busy(false); if (r.ok) return done(r); if (r.step) setStep(r.step); msg(r.error, true); })
+        .catch(err => { busy(false); msg('تعذر الاتصال: ' + (err.message || err), true); });
+    }
+    const name = A.step === 'register' ? el('aName').value.trim() : A.name;
+    if (A.step === 'register' && name.length < 2) return msg('اكتب اسمك.', true);
+    if (p.length < 6) return msg('كلمة المرور لازم تكون 6 خانات أو أكثر.', true);
+    if (p !== el('aPass2').value) return msg('كلمتين المرور مو متطابقة.', true);
+    busy(true);
+    Auth.rpc('authSet', A.email, name, p).then(r => { busy(false); if (!r.ok) return msg(r.error, true); done(r); })
+      .catch(err => { busy(false); msg('تعذر الاتصال: ' + (err.message || err), true); });
+  }
+  el('aGo').onclick = go;
+  ['aEmail','aName','aPass','aPass2'].forEach(id => el(id).onkeydown = e => { if (e.key === 'Enter') go(); });
+  el('aBack').onclick = () => { el('aEmail').value = ''; setStep('email'); };
+  const last = Auth.user();
+  el('aEmail').value = last ? last.email : '';
+  el('auth').hidden = false;
+  setStep('email');
+  if (last && last.email) { A.email = last.email; setStep('login', last.name); }
+  if (opts.error) msg(opts.error, true);
+}
+
 /* ========== الاتصال بالخادم (أو بيانات تجريبية في المعاينة) ========== */
 const PREVIEW = !(window.google && google.script && google.script.run);
 function demoBikes(){
@@ -340,7 +459,8 @@ function api(fn, arg){
       }, 500);
       return;
     }
-    google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn](arg);
+    if (fn === 'submitMaintenance') google.script.run.withSuccessHandler(res).withFailureHandler(rej).submitWithToken(Auth.token(), arg);
+    else google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn](arg);
   });
 }
 
@@ -379,13 +499,27 @@ function normalizePlate(raw){
 }
 
 /* ========== البداية ========== */
+function renderWho(){
+  const u = Auth.user();
+  $('user').hidden = !(u && Auth.token());
+  if (u) $('user').innerHTML = `<span class="who"><i class="ti ti-user"></i>${esc(u.name)}<button type="button" id="logoutBtn">خروج</button></span>`;
+  const b = $('logoutBtn'); if (b) b.onclick = () => { Auth.logout(); needLogin(); };
+}
+function showForm(){
+  $('auth').hidden = true; $('loading').hidden = true;
+  $('steps').hidden = false; $('main').hidden = false; $('nav').hidden = false;
+  renderWho();
+}
+function needLogin(error){
+  $('steps').hidden = true; $('main').hidden = true; $('nav').hidden = true; $('loading').hidden = true;
+  renderWho();
+  authUI({ title:'الدخول لتسجيل الصيانة', note:'اكتب إيميلك. أول مرة بنطلب اسمك وكلمة مرور، وبعدها تدخل بالإيميل وكلمة المرور.', error, onDone: showForm });
+}
 api('getFormConfig').then(cfg => {
   CFG = cfg;
   if (PREVIEW) $('previewBar').hidden = false;
-  $('user').textContent = cfg.user || '';
-  $('user').hidden = !cfg.user;
   buildStatic(); renderAll();
-  $('loading').hidden = true; $('main').hidden = false; $('nav').hidden = false;
+  if (Auth.token() || PREVIEW) showForm(); else needLogin();
 }).catch(e => {
   $('loading').innerHTML = `<div style="text-align:center"><i class="ti ti-alert-triangle" style="font-size:40px;color:var(--danger)"></i><p>${esc(e.message || e)}</p></div>`;
 });
@@ -630,7 +764,11 @@ function submit(){
     $('doneId').textContent = r.id;
     $('doneMsg').textContent = `الدباب ${r.plate} · ${r.parts} قطعة`;
     go(4);
-  }).catch(e => { btn.disabled = false; renderSteps(); toast('صار خطأ: ' + (e.message || e), true); });
+  }).catch(e => {
+    btn.disabled = false; renderSteps();
+    if (/AUTH/.test(String(e && e.message || e))) { Auth.logout(); needLogin('انتهت جلستك. ادخل مرة ثانية وبعدها اضغط «إرسال» (البيانات اللي عبيتها محفوظة).'); return; }
+    toast('صار خطأ: ' + (e.message || e), true);
+  });
 }
 
 function reset(){

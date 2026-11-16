@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>لوحة تحكم صيانة الدبابات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.52.0/dist/tabler-icons.min.css">
+<style>
+:root{
+  --brand:#0E7C66; --brand-2:#0A5E4E; --brand-soft:#E3F4EF;
+  --ink:#12263A; --ink-2:#4A5B6C; --ink-3:#8796A5;
+  --bg:#F3F5F8; --card:#FFFFFF; --line:#E4E8EE; --line-2:#D3DAE3;
+  --ok:#2E8B57; --ok-soft:#E5F4EC; --warn:#B86E12; --warn-soft:#FDF1E1; --bad:#C8423B; --bad-soft:#FBEBEA;
+  --shadow:0 1px 2px rgba(18,38,58,.04),0 8px 24px rgba(18,38,58,.06);
+}
+[hidden]{display:none!important}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;font-size:15px;line-height:1.55}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid rgba(14,124,102,.35);outline-offset:1px}
+.wrap{max-width:1360px;margin:0 auto;padding:0 20px 40px}
+.top{background:linear-gradient(135deg,var(--brand) 0%,var(--brand-2) 100%);color:#fff;margin:0 -20px;padding:20px 24px 66px}
+.top-in{max-width:1360px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{background:#fff;border-radius:12px;padding:5px 8px;height:68px;display:grid;place-items:center;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.brand img{height:58px;width:auto;max-width:none;display:block}
+.logo{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.14);display:grid;place-items:center;font-size:26px}
+.top h1{margin:0;font-size:21px;font-weight:700}
+.top p{margin:0;font-size:13px;opacity:.8}
+.acts{margin-inline-start:auto;display:flex;gap:8px;flex-wrap:wrap}
+.tbtn{height:40px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;padding:0 14px;display:inline-flex;align-items:center;gap:6px;font-size:14px;text-decoration:none}
+.tbtn:hover{background:rgba(255,255,255,.2)}
+.preview-bar{background:#FDF1E1;color:#8A5208;font-size:13px;text-align:center;padding:6px 10px;margin:0 -20px}
+.preview-bar a{color:inherit;font-weight:700}
+
+.tabs{display:flex;gap:4px;background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:6px;margin-top:-46px;position:relative;width:fit-content;max-width:100%;overflow-x:auto}
+.tab{flex-shrink:0;border:0;background:none;border-radius:10px;padding:10px 18px;font-size:15px;font-weight:500;color:var(--ink-2);display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.tab i{font-size:19px}
+.tab[aria-selected=true]{background:var(--brand);color:#fff}
+.tab .badge{background:var(--bad);color:#fff;border-radius:999px;font-size:11.5px;font-weight:700;padding:0 7px;line-height:19px}
+.tab[aria-selected=true] .badge{background:#fff;color:var(--bad)}
+
+.card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:18px;margin-top:14px}
+.card h3{margin:0 0 4px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+.card h3 i{color:var(--brand);font-size:20px}
+.sub{margin:0 0 12px;color:var(--ink-3);font-size:13px}
+
+/* الفلاتر */
+.flt{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;align-items:end}
+.f{display:flex;flex-direction:column;gap:4px}
+.f label{font-size:12.5px;color:var(--ink-2);font-weight:500}
+.f input,.f select,.f textarea{height:42px;border:1.5px solid var(--line-2);border-radius:10px;background:#fff;padding:0 10px;font-size:14px;outline:none;width:100%}
+.f textarea{height:auto;min-height:92px;padding:8px 10px;resize:vertical;line-height:1.7}
+.f input:focus,.f select:focus,.f textarea:focus{border-color:var(--brand)}
+.quick{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.chip{border:1.5px solid var(--line-2);background:#fff;border-radius:999px;padding:5px 14px;font-size:13.5px}
+.chip[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:#fff}
+.lnk{border:0;background:none;color:var(--brand);font-size:13.5px;text-decoration:underline;padding:6px 4px}
+
+/* شريط الجدول */
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.bar .count{font-weight:600}
+.bar .count span{color:var(--ink-3);font-weight:400;font-size:13px}
+.seg{display:inline-flex;background:var(--bg);border-radius:10px;padding:3px;gap:2px}
+.seg button{border:0;background:none;border-radius:8px;padding:6px 12px;font-size:13.5px;color:var(--ink-2);white-space:nowrap}
+.seg button[aria-pressed=true]{background:#fff;color:var(--brand);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.sp{margin-inline-start:auto}
+.pbtn{height:40px;border:0;border-radius:10px;background:var(--brand);color:#fff;padding:0 16px;font-weight:600;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.pbtn:hover{background:var(--brand-2)}
+.pbtn:disabled{opacity:.6;cursor:wait}
+.gbtn{height:40px;border:1.5px solid var(--line-2);border-radius:10px;background:#fff;padding:0 14px;font-weight:500;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.xl{display:none;align-items:center;gap:10px;background:var(--ok-soft);color:var(--ok);border-radius:10px;padding:8px 12px;font-size:14px;margin-bottom:10px}
+.xl.on{display:flex}
+.xl a{color:var(--ok);font-weight:700}
+.xl.bad{background:var(--bad-soft);color:var(--bad)}
+
+/* الجداول */
+.tw{overflow:auto;border:1px solid var(--line);border-radius:12px;max-height:68vh}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead th{position:sticky;top:0;background:#F7F9FB;z-index:1;text-align:start;font-size:12.5px;color:var(--ink-2);font-weight:600;padding:10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th.s{cursor:pointer;user-select:none}
+th.s:hover{color:var(--brand)}
+th.s i{font-size:13px;opacity:.35;vertical-align:-1px}
+th.s.on i{opacity:1;color:var(--brand)}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr:hover td{background:#FAFBFC}
+tbody tr:last-child td{border-bottom:0}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.nw{white-space:nowrap}
+.muted{color:var(--ink-3);font-size:12.5px}
+.plate{display:inline-block;border:1.5px solid var(--ink);border-radius:6px;padding:0 8px;font-weight:700;font-size:13px;letter-spacing:1px;background:#fff;white-space:nowrap;cursor:pointer}
+.plate:hover{background:var(--brand-soft);border-color:var(--brand)}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;white-space:nowrap}
+.pill.t1{background:var(--brand-soft);color:var(--brand-2)}.pill.t2{background:var(--warn-soft);color:var(--warn)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}.pill.warn{background:var(--warn-soft);color:var(--warn)}.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.parts{display:flex;flex-wrap:wrap;gap:4px;max-width:420px}
+.parts span{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:0 7px;font-size:12.5px;white-space:nowrap}
+.note{max-width:240px;font-size:13px;color:var(--ink-2)}
+.pager{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;font-size:13.5px;color:var(--ink-2)}
+.pager button{height:34px;min-width:34px;border:1.5px solid var(--line-2);background:#fff;border-radius:8px;padding:0 10px}
+.pager button:disabled{opacity:.4;cursor:default}
+.empty{padding:30px;text-align:center;color:var(--ink-3)}
+.empty i{font-size:30px;display:block;margin-bottom:6px}
+
+/* المخزون */
+.inv-grid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:14px;align-items:start}
+.inv-grid>.card{margin-top:0}
+.whs{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.wh{border:1.5px solid var(--line-2);background:#fff;border-radius:12px;padding:10px 16px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:170px;text-align:start}
+.wh b{font-size:15px;display:flex;align-items:center;gap:6px}
+.wh small{font-size:12.5px;color:var(--ink-3)}
+.wh small .r{color:var(--bad);font-weight:600}.wh small .a{color:var(--warn);font-weight:600}
+.wh[aria-pressed=true]{border-color:var(--brand);background:var(--brand-soft);box-shadow:inset 0 0 0 1px var(--brand)}
+.wh[aria-pressed=true] b{color:var(--brand-2)}
+.sync{display:none;align-items:center;gap:12px;flex-wrap:wrap;background:#FFF8E6;border:1px solid #F3D58B;color:#7A5200;border-radius:12px;padding:10px 14px;margin-top:14px;font-size:14px}
+.sync.on{display:flex}
+.sync b{font-weight:700}
+.sync .pbtn{height:36px;background:#B86E12}
+.sync .pbtn:hover{background:#9A5B0C}
+.alert{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.alert button{border:0;border-radius:10px;padding:8px 12px;font-size:13.5px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.alert .a-bad{background:var(--bad-soft);color:var(--bad)}.alert .a-warn{background:var(--warn-soft);color:var(--warn)}
+.alert button[aria-pressed=true]{box-shadow:inset 0 0 0 2px currentColor}
+.bal{font-weight:700;font-size:15px}
+.bal.neg{color:var(--bad)}
+.minin{width:70px;height:32px;border:1.5px solid var(--line-2);border-radius:8px;padding:0 8px;text-align:center;outline:none}
+.minin:focus{border-color:var(--brand)}
+.minin.saved{border-color:var(--ok);background:var(--ok-soft)}
+.rowact{display:flex;gap:4px}
+.rowact button{border:1px solid var(--line-2);background:#fff;border-radius:8px;padding:2px 8px;font-size:12.5px;white-space:nowrap}
+.rowact button:hover{border-color:var(--brand);color:var(--brand)}
+.form{display:flex;flex-direction:column;gap:12px}
+.form .seg{width:100%}
+.form .seg button{flex:1}
+.curbal{background:var(--bg);border-radius:10px;padding:8px 12px;font-size:13.5px;color:var(--ink-2)}
+.curbal b{color:var(--ink)}
+.msg{font-size:13.5px;border-radius:10px;padding:8px 12px;display:none}
+.msg.on{display:block}
+.msg.ok{background:var(--ok-soft);color:var(--ok)}.msg.bad{background:var(--bad-soft);color:var(--bad)}
+.qty-pos{color:var(--ok);font-weight:700}.qty-neg{color:var(--bad);font-weight:700}
+.lb{font-size:13.5px;font-weight:600;color:var(--ink-2)}
+.split{border:1.5px solid var(--line-2);border-radius:12px;overflow:hidden}
+.split .sr{display:grid;grid-template-columns:minmax(0,1fr) 96px;gap:10px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line)}
+.split .sr b{font-size:14.5px;display:block}
+.split .sr small{font-size:12px;color:var(--ink-3)}
+.split .sr input{height:38px;border:1.5px solid var(--line-2);border-radius:9px;text-align:center;font-size:15px;font-weight:600;outline:none;width:100%}
+.split .sr input:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+.split .tot{display:flex;justify-content:space-between;padding:9px 12px;background:var(--bg);font-size:14px}
+.split .tot b{font-size:16px;color:var(--brand-2)}
+.danger{background:var(--bad-soft);border:1px solid #F0B9B4;color:var(--bad);border-radius:12px;padding:10px 14px;font-size:13.5px}
+.danger ul{margin:6px 0 0;padding-inline-start:18px}
+.parts-grid{display:grid;grid-template-columns:380px minmax(0,1fr);gap:14px;align-items:start;margin-top:14px}
+.parts-grid>.card{margin-top:0}
+.form textarea{min-height:130px}
+.chk{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;color:var(--ink-2);white-space:nowrap;cursor:pointer}
+.chk input{width:17px;height:17px;accent-color:var(--brand)}
+tr.off td{color:var(--ink-3)}
+tr.off td b{text-decoration:line-through;font-weight:500}
+@media (max-width:1050px){.parts-grid{grid-template-columns:1fr}}
+
+/* الدبابات */
+.bk-add{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) auto;gap:10px;align-items:end}
+.regsel{height:32px;border:1.5px solid var(--line-2);border-radius:8px;background:#fff;padding:0 6px;font-size:13.5px;outline:none}
+.regsel.none{border-style:dashed;color:var(--warn);border-color:#E9C27A}
+.regsel.saved{border-color:var(--ok);background:var(--ok-soft)}
+.rmb{border:1px solid var(--line-2);background:#fff;border-radius:8px;padding:4px 10px;color:var(--ink-2);font-size:13px;display:inline-flex;align-items:center;gap:4px}
+.rmb:hover{border-color:var(--bad);color:var(--bad)}
+
+/* نافذة التعديل */
+.modal{position:fixed;inset:0;background:rgba(18,38,58,.45);z-index:40;display:flex;align-items:flex-start;justify-content:center;padding:4vh 12px;overflow:auto}
+.modal[hidden]{display:none!important}
+.mbox{background:#fff;border-radius:16px;width:100%;max-width:760px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.mbox.sm{max-width:460px}
+.mhead{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.mhead h3{margin:0;font-size:17px}
+.mhead .muted{margin-inline-start:auto}
+.mhead .x{border:0;background:var(--bg);border-radius:8px;width:34px;height:34px;display:grid;place-items:center;font-size:18px}
+.mbody{padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.prow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) 80px 36px;gap:8px;align-items:center;margin-bottom:6px}
+.prow select,.prow input{height:38px;border:1.5px solid var(--line-2);border-radius:8px;background:#fff;padding:0 8px;font-size:14px;outline:none;width:100%}
+.prow .rm{border:0;background:var(--bad-soft);color:var(--bad);border-radius:8px;height:36px}
+.mfoot{display:flex;gap:10px;align-items:center;padding:14px 18px;border-top:1px solid var(--line);flex-wrap:wrap}
+.dbtn{height:40px;border:1.5px solid var(--bad);border-radius:10px;background:#fff;color:var(--bad);padding:0 14px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.dbtn.sure{background:var(--bad);color:#fff}
+.ebtn{border:1px solid var(--line-2);background:#fff;border-radius:8px;padding:3px 10px;font-size:12.5px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.ebtn:hover{border-color:var(--brand);color:var(--brand)}
+/* الإعدادات */
+.set-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:14px;align-items:start;margin-top:14px}
+.set-grid>.card{margin-top:0}
+.srow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 36px;gap:8px;align-items:center;margin-bottom:8px}
+.srow input,.srow select,.addline input{height:40px;border:1.5px solid var(--line-2);border-radius:10px;background:#fff;padding:0 10px;font-size:14px;outline:none;width:100%}
+.srow .rm,.chiprm{border:0;background:var(--bad-soft);color:var(--bad);border-radius:8px;height:36px;width:36px;display:grid;place-items:center}
+.srow .ren{font-size:11.5px;color:var(--warn);grid-column:1/-1;margin-top:-4px}
+.addline{display:flex;gap:8px;margin-top:6px}
+.tagrow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.tagrow:last-child{border-bottom:0}
+.tagrow span{flex:1;direction:ltr;text-align:right}
+.savebar{display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap}
+@media (max-width:900px){.set-grid{grid-template-columns:1fr}}
+@media (max-width:560px){.prow{grid-template-columns:1fr 1fr;}.prow input{grid-column:1}.prow .rm{grid-column:2}}
+.loading{display:grid;place-items:center;min-height:50vh;color:var(--ink-3)}
+.spin{width:38px;height:38px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--brand);animation:sp 1s linear infinite;margin:0 auto 10px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.login{display:grid;place-items:center;min-height:55vh;padding:20px 0}
+.login[hidden]{display:none!important}
+.login .card{width:100%;max-width:400px;margin:0}
+.login .card h3{font-size:18px}
+@media (max-width:1050px){.inv-grid{grid-template-columns:1fr}}
+@media (max-width:640px){.wrap{padding:0 10px 30px}.top{margin:0 -10px}.preview-bar{margin:0 -10px}.bk-add{grid-template-columns:1fr}.tab{padding:9px 12px;font-size:14px}.card{padding:14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="previewBar" class="preview-bar" hidden>معاينة ببيانات تجريبية، والتنزيل يشتغل بعد النشر على Google · <a href="index.html">عرض واجهة التعبئة</a></div>
+  <header class="top">
+    <div class="top-in">
+      <div class="brand"><img src="data:image/png;base64,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" alt="Global Etihad"></div>
+      <div><h1>لوحة تحكم صيانة الدبابات</h1><p id="updated">جاري التحميل…</p></div>
+      <div class="acts">
+        <button class="tbtn" id="refresh"><i class="ti ti-refresh"></i>تحديث</button>
+        <a class="tbtn" id="sheetLink" target="_blank" rel="noopener" hidden><i class="ti ti-table"></i>فتح الشيت</a>
+        <button class="tbtn" id="logout" hidden><i class="ti ti-logout"></i>خروج</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" data-t="rec" aria-selected="true"><i class="ti ti-list-details"></i>سجلات الصيانة</button>
+    <button class="tab" role="tab" data-t="inv" aria-selected="false"><i class="ti ti-box"></i>المخزون<span class="badge" id="invBadge" hidden></span></button>
+    <button class="tab" role="tab" data-t="parts" aria-selected="false"><i class="ti ti-tools"></i>القطع</button>
+    <button class="tab" role="tab" data-t="bikes" aria-selected="false"><i class="ti ti-motorbike"></i>الدبابات المسجلة</button>
+    <button class="tab" role="tab" data-t="settings" aria-selected="false"><i class="ti ti-settings"></i>الإعدادات</button>
+  </nav>
+
+  <div class="sync" id="sync"><i class="ti ti-archive" style="font-size:20px"></i><span id="syncTxt"></span><button class="gbtn" id="syncGo" style="height:36px"><i class="ti ti-settings"></i>راجع وامسح</button></div>
+
+  <div id="login" class="login" hidden>
+    <div class="card">
+      <h3><i class="ti ti-lock"></i>الدخول للوحة التحكم</h3>
+      <p class="sub">اكتب اسمك ورمز الدخول. الاسم يطلع في سجل التعديلات وحركات المخزون.</p>
+      <div class="form">
+        <div class="f"><label for="lgName">اسمك</label><input id="lgName" autocomplete="name"></div>
+        <div class="f"><label for="lgPass">رمز الدخول</label><input id="lgPass" type="password" autocomplete="current-password" dir="ltr"></div>
+        <button class="pbtn" id="lgGo" style="justify-content:center"><i class="ti ti-login"></i>دخول</button>
+        <div class="msg" id="lgMsg"></div>
+      </div>
+    </div>
+  </div>
+  <div id="loading" class="loading"><div><div class="spin"></div>جاري تحميل البيانات…</div></div>
+
+  <main id="main" hidden>
+    <!-- ========== سجلات الصيانة ========== -->
+    <section data-p="rec">
+      <div class="card">
+        <div class="quick" id="recQuick">
+          <button class="chip" data-q="today" aria-pressed="false">اليوم</button>
+          <button class="chip" data-q="7" aria-pressed="false">آخر 7 أيام</button>
+          <button class="chip" data-q="month" aria-pressed="true">هذا الشهر</button>
+          <button class="chip" data-q="all" aria-pressed="false">الكل</button>
+          <button class="lnk" id="recClear">مسح الفلاتر</button>
+        </div>
+        <div class="flt">
+          <div class="f"><label for="rFrom">من تاريخ</label><input type="date" id="rFrom"></div>
+          <div class="f"><label for="rTo">إلى تاريخ</label><input type="date" id="rTo"></div>
+          <div class="f"><label for="rPlate">رقم اللوحة</label><input id="rPlate" list="plateList" placeholder="مثل 1234"><datalist id="plateList"></datalist></div>
+          <div class="f"><label for="rRegion">المنطقة</label><select id="rRegion"><option value="">الكل</option></select></div>
+          <div class="f"><label for="rType">نوع الصيانة</label><select id="rType"><option value="">الكل</option></select></div>
+          <div class="f"><label for="rCat">قسم القطع</label><select id="rCat"><option value="">الكل</option></select></div>
+          <div class="f"><label for="rPart">القطعة</label><input id="rPart" list="partList" placeholder="مثل بطارية"><datalist id="partList"></datalist></div>
+          <div class="f"><label for="rQ">بحث عام</label><input id="rQ" placeholder="رقم الصيانة، ملاحظة، المسجّل"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="bar">
+          <div class="count" id="recCount"></div>
+          <div class="seg" id="recView" role="group" aria-label="طريقة العرض">
+            <button data-v="maint" aria-pressed="true">صيانة في كل صف</button>
+            <button data-v="parts" aria-pressed="false">قطعة في كل صف</button>
+          </div>
+          <button class="pbtn sp" id="recXl"><i class="ti ti-file-spreadsheet"></i>تنزيل Excel</button>
+        </div>
+        <div class="xl" id="recXlMsg"></div>
+        <div class="tw" id="recTable"></div>
+        <div class="pager" id="recPager"></div>
+      </div>
+    </section>
+
+    <!-- ========== المخزون ========== -->
+    <section data-p="inv" hidden>
+      <div class="whs" id="whs" role="group" aria-label="المستودع"></div>
+      <div class="inv-grid" style="margin-top:14px">
+        <div class="card">
+          <h3><i class="ti ti-box"></i>أرصدة <span id="whTitle"></span></h3>
+          <p class="sub" id="whSub">الرصيد = المستلم ± الجرد − المصروف في صيانات مناطق المستودع. ينقص تلقائياً مع كل كرت صيانة.</p>
+          <div class="alert" id="invAlert"></div>
+          <div class="bar">
+            <div class="f" style="flex:1 1 180px"><select id="iCat" aria-label="القسم"><option value="">كل الأقسام</option></select></div>
+            <div class="f" style="flex:2 1 220px"><input id="iQ" placeholder="ابحث عن قطعة…" aria-label="ابحث عن قطعة"></div>
+            <button class="gbtn" id="invXl"><i class="ti ti-file-spreadsheet"></i>تنزيل Excel</button>
+          </div>
+          <div class="xl" id="invXlMsg"></div>
+          <div class="tw" id="invTable"></div>
+        </div>
+
+        <div class="card" id="moveCard">
+          <h3><i class="ti ti-transfer-in"></i>حركة مخزون</h3>
+          <div class="form">
+            <div class="seg" id="mKind" role="group" aria-label="نوع الحركة">
+              <button data-k="استلام" aria-pressed="true"><i class="ti ti-download"></i> استلام قطع</button>
+              <button data-k="جرد" aria-pressed="false"><i class="ti ti-clipboard-check"></i> جرد</button>
+            </div>
+            <div class="f"><label for="mPart">القطعة</label><select id="mPart"></select></div>
+            <div id="mIn" class="form">
+              <span class="lb">وزّع الكمية المستلمة على المستودعات</span>
+              <div class="split" id="mSplit"></div>
+            </div>
+            <div id="mCount" class="form" hidden>
+              <div class="f"><label for="mWh">المستودع</label><select id="mWh"></select></div>
+              <div class="curbal" id="mBal"></div>
+              <div class="f"><label for="mQty">الرصيد الفعلي بعد العد</label><input id="mQty" inputmode="numeric" placeholder="0"></div>
+            </div>
+            <div class="f"><label for="mNote">ملاحظة <span class="muted">(اختياري)</span></label><input id="mNote" placeholder="مثل: رقم فاتورة المورد"></div>
+            <button class="pbtn" id="mSave"><i class="ti ti-check"></i>حفظ الحركة</button>
+            <div class="msg" id="mMsg"></div>
+            <p class="sub" style="margin:0">القطعة مو في القائمة؟ <button class="lnk" id="goParts">عرّفها من تبويب «القطع»</button></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><i class="ti ti-history"></i>سجل حركات <span id="mvTitle"></span></h3>
+        <p class="sub">كل استلام وجرد في المستودع. اضغط «تعديل» لتصحيح الكمية أو المستودع أو حذف الحركة. المصروف في الصيانات تلقاه في سجلات الصيانة.</p>
+        <div class="tw" id="movesTable" style="max-height:420px"></div>
+      </div>
+    </section>
+
+    <!-- ========== القطع ========== -->
+    <section data-p="parts" hidden>
+      <div class="parts-grid">
+        <div class="card">
+          <h3><i class="ti ti-square-plus"></i>تعريف قطع جديدة</h3>
+          <p class="sub">القطعة اللي تعرّفها تطلع على طول في كرت الصيانة عند الفنيين وفي المخزون. تقدر تكتب أكثر من قطعة، كل وحدة في سطر.</p>
+          <div class="form">
+            <div class="f"><label for="nCat">القسم</label><select id="nCat"></select></div>
+            <div class="f" id="nCatNewF" hidden><label for="nCatNew">اسم القسم الجديد</label><input id="nCatNew" placeholder="مثل: الزيوت والسوائل"></div>
+            <div class="f"><label for="nPart">أسماء القطع</label><textarea id="nPart" placeholder="فلتر بنزين&#10;فلتر هواء&#10;زيت فرامل"></textarea></div>
+            <button class="pbtn" id="nAdd" style="justify-content:center"><i class="ti ti-plus"></i>تعريف القطع</button>
+            <div class="msg" id="nMsg"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3><i class="ti ti-list"></i>قائمة القطع <span class="muted" id="pCount" style="font-weight:500;font-size:14px"></span></h3>
+          <p class="sub">«تعديل» يغيّر اسم القطعة أو قسمها في كل السجلات والمخزون. «إيقاف» يخفيها من كرت الصيانة والمخزون وسجلاتها القديمة تبقى.</p>
+          <div class="bar">
+            <div class="f" style="flex:1 1 180px"><select id="pCat" aria-label="القسم"><option value="">كل الأقسام</option></select></div>
+            <div class="f" style="flex:2 1 220px"><input id="pQ" placeholder="ابحث عن قطعة…" aria-label="ابحث عن قطعة"></div>
+            <label class="chk"><input type="checkbox" id="pOff"> الموقفة بس</label>
+          </div>
+          <div class="tw" id="pTable" style="max-height:620px"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== الدبابات المسجلة ========== -->
+    <section data-p="bikes" hidden>
+      <div class="card">
+        <h3><i class="ti ti-motorbike"></i>إضافة دبابات</h3>
+        <p class="sub">اللوحات اللي هنا بس تطلع في كرت الصيانة، والمنطقة تتعبى تلقائياً من اللوحة.</p>
+        <div class="bk-add">
+          <div class="f"><label for="bkText">اللوحات (لوحة في كل سطر، بالعربي أو الإنجليزي، أو الصق قائمة كاملة)</label><textarea id="bkText" placeholder="ق ب 1234&#10;BG4815&#10;ED284"></textarea></div>
+          <div class="f"><label for="bkRegion">المنطقة</label><select id="bkRegion"></select></div>
+          <button class="pbtn" id="bkAdd" style="height:42px"><i class="ti ti-plus"></i>إضافة</button>
+        </div>
+        <div class="msg" id="bkMsg" style="margin-top:10px"></div>
+      </div>
+      <div class="card">
+        <div class="bar"><b id="bkCount"></b><div class="f sp" style="min-width:220px"><input id="bkQ" placeholder="ابحث في اللوحات…" aria-label="ابحث في اللوحات"></div></div>
+        <div class="tw" id="bikes"></div>
+      </div>
+    </section>
+    <!-- ========== الإعدادات ========== -->
+    <section data-p="settings" hidden>
+      <div class="set-grid">
+        <div class="card">
+          <h3><i class="ti ti-map-pin"></i>المدن والمستودعات</h3>
+          <p class="sub">المدن تطلع في كرت الصيانة والفلاتر. غيّر اسم مدينة وينتقل الاسم الجديد لكل الدبابات والسجلات. كل مدينة تصرف من مستودعها.</p>
+          <div id="setRegions"></div>
+          <div class="addline"><input id="newRegion" placeholder="اسم مدينة جديدة" aria-label="اسم مدينة جديدة"><button class="gbtn" id="addRegion"><i class="ti ti-plus"></i>إضافة مدينة</button></div>
+          <h3 style="margin-top:20px"><i class="ti ti-building-warehouse"></i>المستودعات</h3>
+          <p class="sub">المستودع اللي عليه مدن أو حركات مخزون ما ينحذف.</p>
+          <div id="setWh"></div>
+          <div class="addline"><input id="newWh" placeholder="اسم مستودع جديد" aria-label="اسم مستودع جديد"><button class="gbtn" id="addWh"><i class="ti ti-plus"></i>إضافة مستودع</button></div>
+        </div>
+        <div>
+          <div class="card" style="margin-top:0">
+            <h3><i class="ti ti-shield-lock"></i>مدراء لوحة التحكم</h3>
+            <p class="sub">إيميلات الشركة اللي هنا تدخل على طول بدون رمز. أي أحد ثاني (Gmail وغيره) يدخل بالاسم ورمز الدخول.</p>
+            <div id="setAdmins"></div>
+            <div class="addline"><input id="newAdmin" type="email" placeholder="name@afmcoltd.com" dir="ltr" aria-label="إيميل مدير جديد"><button class="gbtn" id="addAdmin"><i class="ti ti-plus"></i>إضافة</button></div>
+          </div>
+          <div class="card">
+            <h3><i class="ti ti-key"></i>رمز الدخول</h3>
+            <p class="sub" id="pwTxt"></p>
+            <div class="addline"><input id="pwNew" type="password" dir="ltr" placeholder="6 خانات أو أكثر" aria-label="رمز الدخول الجديد" autocomplete="new-password"><button class="gbtn" id="pwSave"><i class="ti ti-device-floppy"></i>حفظ الرمز</button></div>
+            <button class="lnk" id="pwOff" hidden>إلغاء الدخول بالرمز</button>
+            <div class="msg" id="pwMsg" style="margin-top:8px"></div>
+          </div>
+          <div class="card">
+            <h3><i class="ti ti-archive"></i>بيانات Google Form القديم</h3>
+            <p class="sub" id="oldTxt"></p>
+            <div class="danger" id="oldList" hidden></div>
+            <button class="dbtn" id="freshBtn2" hidden style="margin-top:12px"><i class="ti ti-trash"></i>حذف البيانات القديمة نهائياً</button>
+          </div>
+        </div>
+      </div>
+      <div class="savebar"><button class="pbtn" id="setSave"><i class="ti ti-device-floppy"></i>حفظ الإعدادات</button><button class="lnk" id="setReset">تراجع عن التغييرات</button><div class="msg" id="setMsg" style="flex:1"></div></div>
+    </section>
+  </main>
+
+  <div class="modal" id="mvEdit" hidden role="dialog" aria-modal="true" aria-labelledby="mvTitleE">
+    <div class="mbox sm">
+      <div class="mhead"><i class="ti ti-edit" style="font-size:20px;color:var(--brand)"></i><h3 id="mvTitleE">تعديل حركة مخزون</h3><button class="x" id="mvClose" aria-label="إغلاق" style="margin-inline-start:auto"><i class="ti ti-x"></i></button></div>
+      <div class="mbody">
+        <div class="curbal" id="mvMeta"></div>
+        <div class="f"><label for="mvWh">المستودع</label><select id="mvWh"></select></div>
+        <div class="f"><label for="mvQty" id="mvQtyLb">الكمية</label><input id="mvQty" inputmode="numeric" dir="ltr" style="text-align:right"></div>
+        <div class="f"><label for="mvNote">ملاحظة</label><input id="mvNote"></div>
+        <div class="msg" id="mvMsg"></div>
+      </div>
+      <div class="mfoot"><button class="pbtn" id="mvSave"><i class="ti ti-device-floppy"></i>حفظ التعديل</button><button class="dbtn" id="mvDel" style="margin-inline-start:auto"><i class="ti ti-trash"></i>حذف الحركة</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="pEdit" hidden role="dialog" aria-modal="true" aria-labelledby="pTitleE">
+    <div class="mbox sm">
+      <div class="mhead"><i class="ti ti-edit" style="font-size:20px;color:var(--brand)"></i><h3 id="pTitleE">تعديل قطعة</h3><button class="x" id="pClose" aria-label="إغلاق" style="margin-inline-start:auto"><i class="ti ti-x"></i></button></div>
+      <div class="mbody">
+        <div class="f"><label for="peCat">القسم</label><select id="peCat"></select></div>
+        <div class="f"><label for="pePart">اسم القطعة</label><input id="pePart"></div>
+        <div class="curbal" id="peMeta"></div>
+        <div class="msg" id="peMsg"></div>
+      </div>
+      <div class="mfoot"><button class="pbtn" id="peSave"><i class="ti ti-device-floppy"></i>حفظ</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="edit" hidden role="dialog" aria-modal="true" aria-labelledby="edTitle">
+    <div class="mbox">
+      <div class="mhead"><i class="ti ti-edit" style="font-size:20px;color:var(--brand)"></i><h3 id="edTitle">تعديل الصيانة</h3><span class="muted" id="edMeta"></span><button class="x" id="edClose" aria-label="إغلاق"><i class="ti ti-x"></i></button></div>
+      <div class="mbody">
+        <div class="grid2">
+          <div class="f"><label for="edPlate">اللوحة</label><input id="edPlate" list="edPlates" dir="rtl"><datalist id="edPlates"></datalist></div>
+          <div class="f"><label for="edRegion">المدينة</label><select id="edRegion"></select></div>
+          <div class="f"><label for="edType">نوع الصيانة</label><select id="edType"></select></div>
+          <div class="f"><label for="edOdo">قراءة العداد</label><input id="edOdo" inputmode="numeric"></div>
+          <div class="f" id="edOilF"><label for="edOil">عداد تغيير الزيت القادم</label><input id="edOil" inputmode="numeric"></div>
+        </div>
+        <div class="f"><label>القطع المصروفة</label><div id="edParts"></div><button class="gbtn" id="edAddPart" style="width:fit-content;height:36px"><i class="ti ti-plus"></i>إضافة قطعة</button></div>
+        <div class="f"><label for="edNote">ملاحظة</label><textarea id="edNote"></textarea></div>
+        <div class="msg" id="edMsg"></div>
+      </div>
+      <div class="mfoot"><button class="pbtn" id="edSave"><i class="ti ti-check"></i>حفظ التعديل</button><button class="gbtn" id="edCancel">إلغاء</button><span class="sp"></span><button class="dbtn" id="edDel"><i class="ti ti-trash"></i>حذف الصيانة</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* الصفحة مستضافة برا جوجل: نفس واجهة google.script.run بس عن طريق طلبات للنظام */
+(function () {
+  var API = 'https://script.google.com/macros/s/AKfycbyhbwXMltd_gJJkbZwqdJ4RVU7pz-1zh4IXH92ILHdu00jfF1hotFP6I6puRf_5H2C7nA/exec';
+  function send(fn, args) {
+    return fetch(API, { method: 'POST', body: JSON.stringify({ fn: fn, args: args }) })
+      .then(function (r) { if (!r.ok) throw new Error('تعذر الاتصال بالنظام (' + r.status + ')'); return r.json(); })
+      .then(function (j) { if (!j.ok) throw new Error(j.error || 'خطأ'); return j.data; });
+  }
+  function runner() {
+    var ok = function () {}, bad = function () {};
+    var p = new Proxy({}, { get: function (t, k) {
+      if (k === 'withSuccessHandler') return function (f) { ok = f; return p; };
+      if (k === 'withFailureHandler') return function (f) { bad = f; return p; };
+      return function () { var a = Array.prototype.slice.call(arguments); send(k, a).then(function (d) { ok(d); }, function (e) { bad(e.message === 'Failed to fetch' ? new Error('ما فيه اتصال بالإنترنت. حاول مرة ثانية.') : e); }); };
+    } });
+    return p;
+  }
+  window.google = { script: {} };
+  Object.defineProperty(window.google.script, 'run', { get: runner });
+})();
+</script>
+<script>
+{
+/* ========== الاتصال ========== */
+const PREVIEW = !(window.google && google.script && google.script.run);
+let TOKEN = '', LGNAME = '';
+try { TOKEN = localStorage.getItem('mm_dash_token') || ''; LGNAME = localStorage.getItem('mm_dash_name') || ''; } catch (e) {}
+const isAuth = e => /AUTH/.test(String(e && e.message || e));
+const call = (fn, ...args) => new Promise((res, rej) => {
+  if (PREVIEW) return setTimeout(() => { try { res(demoCall(fn, ...args)); } catch (e) { rej(e); } }, 300);
+  google.script.run.withSuccessHandler(res).withFailureHandler(e => { if (isAuth(e)) { showLogin(); rej(new Error('انتهت الجلسة. ادخل مرة ثانية.')); } else rej(e); }).api(TOKEN, fn, args);
+});
+function showLogin(msg){
+  document.getElementById('loading').hidden = true; document.getElementById('main').hidden = true;
+  document.getElementById('login').hidden = false;
+  document.querySelector('.tabs').style.visibility = 'hidden'; document.getElementById('refresh').style.visibility = 'hidden';
+  const n = document.getElementById('lgName'); if (!n.value) n.value = LGNAME;
+  if (msg) { const m = document.getElementById('lgMsg'); m.textContent = msg; m.className = 'msg on bad'; }
+  setTimeout(() => (n.value ? document.getElementById('lgPass') : n).focus(), 50);
+}
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => Number(n || 0).toLocaleString('en-US');
+const sgn = (n, plus) => n < 0 ? '\u200E-' + fmt(-n) : (plus && n > 0 ? '\u200E+' : '') + fmt(n);
+const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+const daysAgo = n => { const d = new Date(today()); d.setDate(d.getDate() - n); return d.toISOString().slice(0, 10); };
+const SHORT = {'غيار زيت':'الزيت','نظام الإضاءة والكهرباء':'الكهرباء','محرك الدباب':'المحرك','الجوانات والوجوه والصوف':'الجوانات','نظام الفرامل والأسلاك':'الفرامل والأسلاك','الهيكل الخارجي والإكسسوارات':'الهيكل','نظام النقل والدفع':'نقل الحركة','الإطارات والعجلات':'الإطارات'};
+const short = c => SHORT[c] || c;
+const uniq = a => [...new Set(a.filter(Boolean))].sort((x, y) => x.localeCompare(y, 'ar'));
+const compact = s => String(s).replace(/\s/g, '').replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي').replace(/ة/g, 'ه');
+
+let D = null;
+function refresh(){
+  $('updated').textContent = 'جاري التحميل…';
+  call('getDashboardData').then(d => {
+    D = d;
+    $('login').hidden = true;
+    $('logout').hidden = !d.byPass;
+    document.querySelector('.tabs').style.visibility = ''; $('refresh').style.visibility = '';
+    $('pwTxt').textContent = d.hasPass ? 'فيه رمز مضبوط. تقدر تغيّره هنا، وبعد التغيير ما يقدر أحد يدخل بالرمز القديم.' : 'ما فيه رمز للحين. حط رمز وعطه للمدراء اللي إيميلاتهم مو من الشركة، ويدخلون فيه بأي إيميل.';
+    $('pwOff').hidden = !d.hasPass;
+    $('previewBar').hidden = !PREVIEW;
+    $('updated').textContent = 'آخر تحديث ' + d.generatedAt + (d.user ? ' · ' + d.user : '');
+    if (d.sheetUrl) { $('sheetLink').href = d.sheetUrl; $('sheetLink').hidden = false; }
+    fillSelect('rRegion', uniq(d.maint.map(m => m.region).concat(d.regions || [])));
+    fillSelect('rType', uniq(d.maint.map(m => m.type)));
+    fillSelect('rCat', uniq(d.stockItems.map(i => i.category).concat(d.parts.map(p => p.category))), short);
+    fillSelect('iCat', uniq(d.stockItems.map(i => i.category)), short);
+    $('plateList').innerHTML = uniq(d.maint.map(m => m.plate).concat((d.bikes || []).map(b => b.plate))).map(p => `<option value="${esc(p)}">`).join('');
+    $('partList').innerHTML = uniq(d.parts.map(p => p.part).concat(d.stockItems.map(i => i.part))).map(p => `<option value="${esc(p)}">`).join('');
+    $('bkRegion').innerHTML = '<option value="__auto">تلقائي من سجلات الصيانة</option>' + (d.regions || []).map(r => `<option value="${esc(r)}">${esc(r)}</option>`).join('') + '<option value="">بدون منطقة</option>';
+    if (!I.wh || !(d.warehouses || []).some(w => w.name === I.wh)) I.wh = ((d.warehouses || [])[0] || {}).name || '';
+    $('mWh').innerHTML = (d.warehouses || []).map(w => `<option value="${esc(w.name)}">${esc(w.name)}</option>`).join('');
+    $('mWh').value = I.wh;
+    renderSync();
+    loadSettings();
+    buildNewCat();
+    buildMovePart();
+    buildSplit();
+    $('loading').hidden = true; $('main').hidden = false;
+    renderRec(); renderInv(); renderParts(); renderBikes();
+  }).catch(e => { if (!$('login').hidden) return; $('loading').innerHTML = `<div style="text-align:center"><i class="ti ti-alert-triangle" style="font-size:40px;color:var(--bad)"></i><p>${esc(e.message || e)}</p></div>`; });
+}
+function fillSelect(id, vals, lab){ const s = $(id), cur = s.value; s.innerHTML = s.options[0].outerHTML + vals.map(v => `<option value="${esc(v)}">${esc(lab ? lab(v) : v)}</option>`).join(''); s.value = vals.includes(cur) ? cur : ''; }
+
+/* التبويبات */
+document.querySelector('.tabs').addEventListener('click', e => {
+  const b = e.target.closest('.tab'); if (!b) return;
+  document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t === b)));
+  document.querySelectorAll('main>section').forEach(s => s.hidden = s.dataset.p !== b.dataset.t);
+});
+const goTab = t => document.querySelector(`.tab[data-t="${t}"]`).click();
+$('refresh').onclick = refresh;
+function doLogin(){
+  const name = $('lgName').value.trim(), pass = $('lgPass').value;
+  if (!name) return alertMsg('lgMsg', 'اكتب اسمك.', true);
+  if (!pass) return alertMsg('lgMsg', 'اكتب رمز الدخول.', true);
+  const b = $('lgGo'); b.disabled = true;
+  google.script.run.withSuccessHandler(r => {
+    b.disabled = false;
+    if (!r.ok) return alertMsg('lgMsg', r.error, true);
+    TOKEN = r.token; LGNAME = r.name;
+    try { localStorage.setItem('mm_dash_token', TOKEN); localStorage.setItem('mm_dash_name', LGNAME); } catch (e) {}
+    $('lgPass').value = ''; $('lgMsg').className = 'msg';
+    $('login').hidden = true; $('loading').hidden = false; refresh();
+  }).withFailureHandler(e => { b.disabled = false; alertMsg('lgMsg', 'ما تم الدخول: ' + (e.message || e), true); }).dashLogin(name, pass);
+}
+$('lgGo').onclick = doLogin;
+$('lgPass').onkeydown = e => { if (e.key === 'Enter') doLogin(); };
+$('logout').onclick = () => { TOKEN = ''; try { localStorage.removeItem('mm_dash_token'); } catch (e) {} showLogin(); };
+$('pwSave').onclick = () => {
+  const v = $('pwNew').value.trim();
+  if (v.length < 6) return alertMsg('pwMsg', 'الرمز لازم يكون 6 خانات أو أكثر.', true);
+  call('setDashPassword', v).then(r => { if (!r.ok) return alertMsg('pwMsg', r.errors.join(' '), true); $('pwNew').value = ''; D.hasPass = true; $('pwOff').hidden = false; alertMsg('pwMsg', 'انحفظ الرمز. عطه للمدراء من خارج الشركة مع رابط اللوحة.'); })
+    .catch(e => alertMsg('pwMsg', 'ما انحفظ: ' + (e.message || e), true));
+};
+$('pwOff').onclick = () => {
+  const b = $('pwOff');
+  if (b.dataset.sure !== '1') { b.dataset.sure = '1'; b.textContent = 'متأكد؟ اضغط مرة ثانية'; return; }
+  call('setDashPassword', '').then(() => { b.dataset.sure = ''; b.textContent = 'إلغاء الدخول بالرمز'; b.hidden = true; alertMsg('pwMsg', 'انلغى الدخول بالرمز. الحين يدخل بس أصحاب الإيميلات المسجلة.'); });
+};
+
+/* التنزيل */
+function excel(sheets, box, btn){
+  const m = $(box);
+  if (PREVIEW) { m.className = 'xl on'; m.innerHTML = `<i class="ti ti-info-circle"></i>في المعاينة ما فيه تنزيل. بعد النشر يتجهز ملف Excel فيه ${sheets.map(s => `«${esc(s.name)}» (${s.rows.length} صف)`).join(' و')}.`; return; }
+  btn.disabled = true; m.className = 'xl on'; m.innerHTML = '<i class="ti ti-loader-2"></i>جاري تجهيز الملف…';
+  call('exportXlsx', sheets).then(r => {
+    btn.disabled = false;
+    m.innerHTML = `<i class="ti ti-circle-check"></i>الملف جاهز: <a href="${esc(r.url)}" target="_blank" rel="noopener">اضغط هنا لتنزيل Excel</a>`;
+  }).catch(e => { btn.disabled = false; m.className = 'xl on bad'; m.textContent = 'ما تجهز الملف: ' + (e.message || e); });
+}
+
+/* ========== سجلات الصيانة ========== */
+const R = { quick:'month', from:'', to:'', plate:'', region:'', type:'', cat:'', part:'', q:'', view:'maint', sort:'date', dir:-1, page:1 };
+const PAGE = 50;
+
+function recRange(){
+  if (R.quick === 'today') return [today(), today()];
+  if (R.quick === '7') return [daysAgo(6), today()];
+  if (R.quick === 'month') return [today().slice(0, 7) + '-01', today()];
+  if (R.quick === 'all') return ['0000', '9999'];
+  return [R.from || '0000', R.to || '9999'];
+}
+function recData(){
+  const [a, b] = recRange();
+  const pq = compact(R.plate), partQ = compact(R.part), q = R.q.trim().toLowerCase();
+  const pb = {};
+  D.parts.forEach(p => (pb[p.id] = pb[p.id] || []).push(p));
+  const partOk = p => (!R.cat || p.category === R.cat) && (!partQ || compact(p.part).includes(partQ));
+  const maint = D.maint.filter(m => {
+    if (m.date < a || m.date > b) return false;
+    if (pq && !compact(m.plate).includes(pq)) return false;
+    if (R.region && m.region !== R.region) return false;
+    if (R.type && m.type !== R.type) return false;
+    const ps = pb[m.id] || [];
+    if ((R.cat || partQ) && !ps.some(partOk)) return false;
+    if (q && ![m.id, m.note, m.by, m.plate].concat(ps.map(p => p.part)).some(x => String(x).toLowerCase().includes(q))) return false;
+    return true;
+  });
+  const ids = new Set(maint.map(m => m.id));
+  const parts = D.parts.filter(p => ids.has(p.id) && partOk(p));
+  return { maint, parts, pb };
+}
+
+const COLS = {
+  maint: [
+    ['id','رقم الصيانة'],['date','التاريخ'],['time','الوقت',0],['plate','اللوحة'],['region','المنطقة'],['type','النوع'],
+    ['odometer','العداد'],['parts','القطع',0],['qty','العدد'],['nextOil','الزيت القادم'],['note','ملاحظة',0],['by','المسجّل'],['edit','',0]
+  ],
+  parts: [['id','رقم الصيانة'],['date','التاريخ'],['plate','اللوحة'],['region','المنطقة'],['type','النوع'],['category','القسم'],['part','القطعة'],['qty','الكمية']]
+};
+function sorter(key, dir, timeOf){
+  return (x, y) => {
+    let a = x[key], b = y[key];
+    if (key === 'date') { a = x.date + (timeOf ? timeOf(x) : ''); b = y.date + (timeOf ? timeOf(y) : ''); }
+    if (a == null) a = ''; if (b == null) b = '';
+    const r = typeof a === 'number' && typeof b === 'number' ? a - b : String(a).localeCompare(String(b), 'ar');
+    return r * dir || String(x.id).localeCompare(String(y.id)) * -1;
+  };
+}
+
+function renderRec(){
+  const { maint, parts, pb } = recData();
+  const isM = R.view === 'maint';
+  const all = isM ? maint.slice() : parts.slice();
+  const timeMap = {}; D.maint.forEach(m => timeMap[m.id] = m.time || '');
+  all.sort(sorter(R.sort, R.dir, r => timeMap[r.id] || ''));
+  const pages = Math.max(1, Math.ceil(all.length / PAGE));
+  R.page = Math.min(R.page, pages);
+  const rows = all.slice((R.page - 1) * PAGE, R.page * PAGE);
+  const qtySum = parts.reduce((s, p) => s + p.qty, 0);
+  $('recCount').innerHTML = `${fmt(maint.length)} صيانة <span>· ${fmt(qtySum)} قطعة مصروفة</span>`;
+  if (!all.length) { $('recTable').innerHTML = '<div class="empty"><i class="ti ti-search"></i>ما فيه سجلات تطابق الفلاتر. وسّع الفترة أو امسح الفلاتر.</div>'; $('recPager').innerHTML = ''; return; }
+  const head = COLS[R.view].map(c => c[2] === 0 ? `<th>${c[1]}</th>` : `<th class="s${R.sort === c[0] ? ' on' : ''}" data-k="${c[0]}">${c[1]} <i class="ti ti-${R.sort === c[0] ? (R.dir < 0 ? 'arrow-down' : 'arrow-up') : 'arrows-sort'}"></i></th>`).join('');
+  const typePill = t => `<span class="pill ${/حادث/.test(t) ? 't2' : 't1'}">${esc(t)}</span>`;
+  const plate = p => `<span class="plate" data-plate="${esc(p)}">${esc(p)}</span>`;
+  const body = isM ? rows.map(m => {
+    const ps = (pb[m.id] || []);
+    return `<tr><td class="num muted">${esc(m.id)}</td><td class="num">${esc(m.date)}</td><td class="num muted">${esc(m.time || '')}</td><td>${plate(m.plate)}</td><td class="nw">${esc(m.region)}</td><td>${typePill(m.type)}</td>
+      <td class="num">${fmt(m.odometer)}</td><td><div class="parts">${ps.length ? ps.map(p => `<span title="${esc(p.category)}">${esc(p.part)}${p.qty > 1 ? ' ×' + p.qty : ''}</span>`).join('') : '<span class="muted" style="border:0;background:none">بدون قطع</span>'}</div></td>
+      <td class="num"><b>${fmt(m.qty)}</b></td><td class="num">${m.nextOil ? fmt(m.nextOil) : '<span class="muted">-</span>'}</td><td><div class="note">${esc(m.note)}</div></td><td class="muted nw">${esc(m.by)}</td><td><button class="ebtn" data-edit="${esc(m.id)}"><i class="ti ti-edit"></i>تعديل</button></td></tr>`;
+  }).join('') : rows.map(p => `<tr><td class="num muted">${esc(p.id)}</td><td class="num">${esc(p.date)}</td><td>${plate(p.plate)}</td><td class="nw">${esc(p.region)}</td><td>${typePill(p.type)}</td><td class="nw">${esc(short(p.category))}</td><td>${esc(p.part)}</td><td class="num"><b>${p.qty}</b></td></tr>`).join('');
+  $('recTable').innerHTML = `<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+  $('recPager').innerHTML = pages > 1 ? `<button data-pg="prev" ${R.page === 1 ? 'disabled' : ''} aria-label="السابق"><i class="ti ti-chevron-right"></i></button><span>صفحة ${R.page} من ${pages} · ${fmt(all.length)} صف</span><button data-pg="next" ${R.page === pages ? 'disabled' : ''} aria-label="التالي"><i class="ti ti-chevron-left"></i></button>` : `<span>${fmt(all.length)} صف</span>`;
+}
+
+function setQuick(q){ R.quick = q; document.querySelectorAll('#recQuick .chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.q === q))); if (q) { const [a, b] = recRange(); $('rFrom').value = a === '0000' ? '' : a; $('rTo').value = b === '9999' ? '' : b; } }
+$('recQuick').onclick = e => { const c = e.target.closest('.chip'); if (!c) return; setQuick(c.dataset.q); R.page = 1; renderRec(); };
+$('rFrom').onchange = e => { R.from = e.target.value; R.to = $('rTo').value; setQuick(''); R.page = 1; renderRec(); };
+$('rTo').onchange = e => { R.to = e.target.value; R.from = $('rFrom').value; setQuick(''); R.page = 1; renderRec(); };
+[['rPlate','plate'],['rPart','part'],['rQ','q']].forEach(([id, k]) => $(id).oninput = e => { R[k] = e.target.value.trim(); R.page = 1; renderRec(); });
+[['rRegion','region'],['rType','type'],['rCat','cat']].forEach(([id, k]) => $(id).onchange = e => { R[k] = e.target.value; R.page = 1; renderRec(); });
+$('recClear').onclick = () => { Object.assign(R, {plate:'', region:'', type:'', cat:'', part:'', q:'', page:1}); ['rPlate','rRegion','rType','rCat','rPart','rQ'].forEach(id => $(id).value = ''); setQuick('all'); renderRec(); };
+$('recView').onclick = e => { const b = e.target.closest('button'); if (!b) return; R.view = b.dataset.v; if (!COLS[R.view].some(c => c[0] === R.sort && c[2] !== 0)) { R.sort = 'date'; R.dir = -1; } $('recView').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); R.page = 1; renderRec(); };
+$('recTable').addEventListener('click', e => {
+  const th = e.target.closest('th.s');
+  if (th) { if (R.sort === th.dataset.k) R.dir *= -1; else { R.sort = th.dataset.k; R.dir = th.dataset.k === 'date' ? -1 : 1; } renderRec(); return; }
+  const ed = e.target.closest('[data-edit]');
+  if (ed) return openEdit(ed.dataset.edit);
+  const pl = e.target.closest('.plate');
+  if (pl) { R.plate = pl.dataset.plate; $('rPlate').value = R.plate; R.page = 1; renderRec(); }
+});
+$('recPager').onclick = e => { const b = e.target.closest('button[data-pg]'); if (!b) return; R.page += b.dataset.pg === 'next' ? 1 : -1; renderRec(); $('recTable').scrollTop = 0; };
+$('recXl').onclick = () => {
+  const { maint, parts, pb } = recData();
+  const sortedM = maint.slice().sort(sorter('date', -1, m => m.time || ''));
+  const mSheet = { name:'الصيانات', header:['رقم الصيانة','التاريخ','الوقت','اللوحة','المنطقة','نوع الصيانة','العداد','عدد القطع','القطع','عداد الزيت القادم','ملاحظة','المسجّل'],
+    rows: sortedM.map(m => [m.id, m.date, m.time || '', m.plate, m.region, m.type, m.odometer, m.qty, (pb[m.id] || []).map(p => p.part + (p.qty > 1 ? ' ×' + p.qty : '')).join('، '), m.nextOil || '', m.note, m.by]) };
+  const pSheet = { name:'القطع المصروفة', header:['رقم الصيانة','التاريخ','اللوحة','المنطقة','نوع الصيانة','القسم','القطعة','الكمية'],
+    rows: parts.slice().sort(sorter('date', -1)).map(p => [p.id, p.date, p.plate, p.region, p.type, p.category, p.part, p.qty]) };
+  excel(R.view === 'maint' ? [mSheet, pSheet] : [pSheet, mSheet], 'recXlMsg', $('recXl'));
+};
+
+/* ========== المخزون ========== */
+const I = { wh:'', cat:'', q:'', only:'' };
+const key = (c, p) => c + '|' + p;
+function regionWh(){ const m = {}; (D.warehouses || []).forEach(w => w.regions.forEach(r => m[r] = w.name)); return m; }
+function minOf(wh, c, p){ const m = (D.mins || []).find(x => x.wh === wh && x.category === c && x.part === p); if (m) return m.min; const it = D.stockItems.find(i => i.category === c && i.part === p); return it && it.min != null ? it.min : null; }
+function stock(wh){
+  const map = {};
+  D.stockItems.forEach(i => map[key(i.category, i.part)] = { wh, category:i.category, part:i.part, min:minOf(wh, i.category, i.part), inQ:0, adj:0, used:0, used30:0, bal:0 });
+  D.moves.forEach(m => { if (m.wh !== wh) return; const s = map[key(m.category, m.part)]; if (!s) return; if (m.kind === 'جرد') s.adj += m.qty; else s.inQ += m.qty; });
+  const r2w = regionWh(), d30 = daysAgo(29);
+  D.parts.forEach(p => { if (r2w[p.region] !== wh) return; const s = map[key(p.category, p.part)]; if (!s) return; s.used += p.qty; if (p.date >= d30) s.used30 += p.qty; });
+  return Object.values(map).map(s => { s.bal = s.inQ + s.adj - s.used; s.status = s.bal <= 0 ? 0 : (s.min != null && s.bal <= s.min ? 1 : 2); return s; });
+}
+const ST = [['bad','ti-alert-triangle','نافد'],['warn','ti-alert-circle','تحت الحد'],['ok','ti-check','متوفر']];
+function counts(list){ return { out:list.filter(s => s.status === 0).length, low:list.filter(s => s.status === 1).length }; }
+
+function renderInv(){
+  const whs = D.warehouses || [];
+  let badge = 0;
+  $('whs').innerHTML = whs.map(w => { const c = counts(stock(w.name)); badge += c.out + c.low;
+    return `<button class="wh" data-wh="${esc(w.name)}" aria-pressed="${w.name === I.wh}"><b><i class="ti ti-building-warehouse"></i>${esc(w.name)}</b><small>${esc(w.regions.join('، '))}</small><small>${c.out ? `<span class="r">${c.out} نافد</span>` : 'لا نواقص'}${c.low ? ` · <span class="a">${c.low} تحت الحد</span>` : ''}</small></button>`; }).join('');
+  $('invBadge').hidden = !badge; $('invBadge').textContent = badge;
+  $('whTitle').textContent = I.wh ? 'مستودع ' + I.wh : 'القطع';
+  $('mvTitle').textContent = I.wh ? 'مستودع ' + I.wh : 'المخزون';
+  const all = stock(I.wh);
+  const { out, low } = counts(all);
+  $('invAlert').innerHTML = (out ? `<button class="a-bad" data-only="0" aria-pressed="${I.only === '0'}"><i class="ti ti-alert-triangle"></i>${out} قطعة نافدة</button>` : '') + (low ? `<button class="a-warn" data-only="1" aria-pressed="${I.only === '1'}"><i class="ti ti-alert-circle"></i>${low} قطعة تحت الحد الأدنى</button>` : '') + (I.only ? '<button class="lnk" data-only="">عرض كل القطع</button>' : '');
+  const q = compact(I.q);
+  const rows = all.filter(s => (!I.cat || s.category === I.cat) && (!q || compact(s.part).includes(q)) && (I.only === '' || String(s.status) === I.only))
+    .sort((a, b) => a.status - b.status || a.category.localeCompare(b.category, 'ar') || a.part.localeCompare(b.part, 'ar'));
+  if (!rows.length) { $('invTable').innerHTML = '<div class="empty"><i class="ti ti-box"></i>ما فيه قطع تطابق البحث.</div>'; }
+  else $('invTable').innerHTML = `<table><thead><tr><th>القطعة</th><th>القسم</th><th>الرصيد</th><th>مستلم</th><th>جرد ±</th><th>مصروف</th><th>مصروف آخر 30 يوم</th><th>الحد الأدنى</th><th>الحالة</th><th></th></tr></thead><tbody>${rows.map(s =>
+    `<tr><td><b>${esc(s.part)}</b></td><td class="nw muted">${esc(short(s.category))}</td><td class="num"><span class="bal${s.bal < 0 ? ' neg' : ''}">${sgn(s.bal)}</span></td><td class="num">${fmt(s.inQ)}</td><td class="num">${s.adj ? sgn(s.adj, true) : '<span class="muted">0</span>'}</td><td class="num">${fmt(s.used)}</td><td class="num">${fmt(s.used30)}</td>
+     <td><input class="minin" data-c="${esc(s.category)}" data-p="${esc(s.part)}" value="${s.min == null ? '' : s.min}" inputmode="numeric" aria-label="الحد الأدنى لـ ${esc(s.part)}" placeholder="-"></td>
+     <td><span class="pill ${ST[s.status][0]}"><i class="ti ${ST[s.status][1]}"></i>${ST[s.status][2]}</span></td>
+     <td><div class="rowact"><button data-act="استلام" data-c="${esc(s.category)}" data-p="${esc(s.part)}">استلام</button><button data-act="جرد" data-c="${esc(s.category)}" data-p="${esc(s.part)}">جرد</button></div></td></tr>`).join('')}</tbody></table>`;
+  renderMoves();
+  showBal();
+}
+$('whs').onclick = e => { const b = e.target.closest('.wh'); if (!b) return; I.wh = b.dataset.wh; $('mWh').value = I.wh; renderInv(); };
+$('iCat').onchange = e => { I.cat = e.target.value; renderInv(); };
+$('iQ').oninput = e => { I.q = e.target.value.trim(); renderInv(); };
+$('invAlert').onclick = e => { const b = e.target.closest('[data-only]'); if (!b) return; I.only = I.only === b.dataset.only ? '' : b.dataset.only; renderInv(); };
+$('invTable').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  setKind(b.dataset.act); $('mWh').value = I.wh; $('mPart').value = key(b.dataset.c, b.dataset.p); showBal();
+  $('moveCard').scrollIntoView({behavior:'smooth', block:'start'});
+  setTimeout(() => (b.dataset.act === 'جرد' ? $('mQty') : $('mSplit').querySelector(`input[data-wh="${CSS.escape(I.wh)}"]`) || $('mQty')).focus(), 350);
+});
+$('invTable').addEventListener('change', e => {
+  const inp = e.target.closest('.minin'); if (!inp) return;
+  const v = inp.value.trim(), wh = I.wh, c = inp.dataset.c, pt = inp.dataset.p;
+  call('setMinLevel', wh, c, pt, v).then(r => {
+    if (!r.ok) { inp.value = ''; alertMsg('mMsg', r.errors.join(' '), true); return; }
+    D.mins = (D.mins || []).filter(m => !(m.wh === wh && m.category === c && m.part === pt));
+    if (v !== '') D.mins.push({ wh, category:c, part:pt, min:Number(v) });
+    inp.classList.add('saved'); setTimeout(renderInv, 700);
+  }).catch(err => alertMsg('mMsg', 'ما انحفظ الحد الأدنى: ' + (err.message || err), true));
+});
+
+function allCats(){ return [...new Set((D.catalogAll || []).map(i => i.category).concat(D.stockItems.map(i => i.category)))]; }
+function buildNewCat(){
+  const cats = allCats();
+  const cur = $('nCat').value;
+  $('nCat').innerHTML = cats.map(c => `<option value="${esc(c)}">${esc(short(c))}</option>`).join('') + '<option value="__new">قسم جديد…</option>';
+  if (cur && (cats.includes(cur) || cur === '__new')) $('nCat').value = cur;
+  $('nCatNewF').hidden = $('nCat').value !== '__new';
+  const pc = $('pCat').value;
+  $('pCat').innerHTML = '<option value="">كل الأقسام</option>' + cats.map(c => `<option value="${esc(c)}">${esc(short(c))}</option>`).join('');
+  $('pCat').value = cats.includes(pc) ? pc : '';
+}
+function catalogChanged(r){
+  D.stockItems = r.stockItems; D.catalog = r.catalog; if (r.catalogAll) D.catalogAll = r.catalogAll;
+  fillSelect('iCat', uniq(D.stockItems.map(i => i.category)), short);
+  buildNewCat(); buildMovePart(); renderInv(); renderParts();
+}
+$('nCat').onchange = () => { $('nCatNewF').hidden = $('nCat').value !== '__new'; if (!$('nCatNewF').hidden) $('nCatNew').focus(); };
+$('goParts').onclick = () => { goTab('parts'); setTimeout(() => $('nPart').focus(), 50); };
+$('nAdd').onclick = () => {
+  const category = $('nCat').value === '__new' ? $('nCatNew').value.trim() : $('nCat').value;
+  const text = $('nPart').value.trim();
+  if (!category) return alertMsg('nMsg', 'اكتب اسم القسم الجديد.', true);
+  if (!text) return alertMsg('nMsg', 'اكتب اسم قطعة واحدة على الأقل.', true);
+  const btn = $('nAdd'); btn.disabled = true;
+  call('addCatalogItems', category, text).then(r => {
+    btn.disabled = false;
+    if (!r.ok) return alertMsg('nMsg', r.errors.join(' '), true);
+    $('nPart').value = ''; $('nCatNew').value = '';
+    catalogChanged(r);
+    $('nCat').value = r.category; $('nCatNewF').hidden = true;
+    const t = [];
+    if (r.added.length) t.push(`انضافت ${r.added.length} قطعة في ${short(r.category)}: ${r.added.join('، ')}`);
+    if (r.reactivated.length) t.push(`ورجعت ${r.reactivated.join('، ')} بعد ما كانت موقفة`);
+    if (r.exists.length) t.push(`وهذي موجودة من قبل: ${r.exists.join('، ')}`);
+    alertMsg('nMsg', (t.join('. ') || 'ما انضاف شي.') + '.', !r.added.length && !r.reactivated.length);
+    P.q = ''; $('pQ').value = ''; P.cat = r.category; $('pCat').value = r.category; P.off = false; $('pOff').checked = false; renderParts();
+  }).catch(e => { btn.disabled = false; alertMsg('nMsg', 'ما انضافت: ' + (e.message || e), true); });
+};
+
+/* قائمة القطع */
+const P = { cat:'', q:'', off:false };
+function renderParts(){
+  const all = D.catalogAll || D.stockItems.map(i => ({ category:i.category, part:i.part, active:true }));
+  const used = {}; D.parts.forEach(x => { const k = key(x.category, x.part); used[k] = (used[k] || 0) + x.qty; });
+  const q = compact(P.q);
+  const rows = all.filter(i => (!P.cat || i.category === P.cat) && (!q || compact(i.part).includes(q)) && (!P.off || !i.active));
+  const off = all.filter(i => !i.active).length;
+  $('pCount').textContent = `${all.length - off} مفعّلة` + (off ? ` · ${off} موقفة` : '');
+  $('pTable').innerHTML = rows.length ? `<table><thead><tr><th>القطعة</th><th>القسم</th><th>مصروف في الصيانات</th><th>الحالة</th><th></th></tr></thead><tbody>${rows.map(i =>
+    `<tr class="${i.active ? '' : 'off'}"><td><b>${esc(i.part)}</b></td><td class="muted nw">${esc(short(i.category))}</td><td class="num">${fmt(used[key(i.category, i.part)] || 0)}</td>
+     <td>${i.active ? '<span class="pill ok"><i class="ti ti-check"></i>مفعّلة</span>' : '<span class="pill">موقفة</span>'}</td>
+     <td><div class="rowact"><button data-pe="1" data-c="${esc(i.category)}" data-p="${esc(i.part)}">تعديل</button><button data-pa="${i.active ? 0 : 1}" data-c="${esc(i.category)}" data-p="${esc(i.part)}">${i.active ? 'إيقاف' : 'تفعيل'}</button></div></td></tr>`).join('')}</tbody></table>`
+    : '<div class="empty"><i class="ti ti-tools"></i>ما فيه قطع تطابق البحث.</div>';
+}
+$('pCat').onchange = e => { P.cat = e.target.value; renderParts(); };
+$('pQ').oninput = e => { P.q = e.target.value.trim(); renderParts(); };
+$('pOff').onchange = e => { P.off = e.target.checked; renderParts(); };
+let PE = null;
+$('pTable').addEventListener('click', e => {
+  const a = e.target.closest('[data-pa]');
+  if (a) {
+    a.disabled = true;
+    call('setCatalogActive', a.dataset.c, a.dataset.p, a.dataset.pa === '1').then(r => { if (!r.ok) { a.disabled = false; return; } catalogChanged(r); })
+      .catch(() => { a.disabled = false; });
+    return;
+  }
+  const b = e.target.closest('[data-pe]'); if (!b) return;
+  PE = { category:b.dataset.c, part:b.dataset.p };
+  const cats = allCats();
+  $('peCat').innerHTML = cats.map(c => `<option value="${esc(c)}">${esc(short(c))}</option>`).join('');
+  $('peCat').value = PE.category; $('pePart').value = PE.part;
+  const n = D.parts.filter(x => x.category === PE.category && x.part === PE.part).length;
+  const m = D.moves.filter(x => x.category === PE.category && x.part === PE.part).length;
+  $('peMeta').textContent = n || m ? `الاسم الجديد بيتحدث في ${n} سطر من سجلات الصيانة و${m} حركة مخزون.` : 'القطعة ما لها سجلات للحين.';
+  $('peMsg').className = 'msg';
+  $('pEdit').hidden = false; $('pePart').focus();
+});
+$('pClose').onclick = () => $('pEdit').hidden = true;
+$('pEdit').onclick = e => { if (e.target.id === 'pEdit') $('pEdit').hidden = true; };
+$('peSave').onclick = () => {
+  const nc = $('peCat').value, np = $('pePart').value.trim();
+  if (!np) return alertMsg('peMsg', 'اكتب اسم القطعة.', true);
+  const btn = $('peSave'); btn.disabled = true;
+  call('renameCatalogItem', PE.category, PE.part, nc, np).then(r => {
+    btn.disabled = false;
+    if (!r.ok) return alertMsg('peMsg', r.errors.join(' '), true);
+    const ren = x => { if (x.category === PE.category && x.part === PE.part) { x.category = nc; x.part = np; } };
+    D.parts.forEach(ren); D.moves.forEach(ren); (D.mins || []).forEach(ren);
+    $('pEdit').hidden = true; catalogChanged(r); renderRec();
+  }).catch(e => { btn.disabled = false; alertMsg('peMsg', 'ما انحفظ: ' + (e.message || e), true); });
+};
+
+function buildMovePart(){
+  const groups = {};
+  D.stockItems.forEach(i => (groups[i.category] = groups[i.category] || []).push(i.part));
+  const cur = $('mPart').value;
+  $('mPart').innerHTML = '<option value="">اختر القطعة…</option>' + Object.keys(groups).map(c => `<optgroup label="${esc(short(c))}">${groups[c].map(p => `<option value="${esc(key(c, p))}">${esc(p)}</option>`).join('')}</optgroup>`).join('');
+  $('mPart').value = cur;
+}
+function buildSplit(){
+  const old = {}; $('mSplit').querySelectorAll('input').forEach(i => old[i.dataset.wh] = i.value);
+  $('mSplit').innerHTML = (D.warehouses || []).map(w => `<div class="sr"><span><b>${esc(w.name)}</b><small data-bal="${esc(w.name)}"></small></span><input data-wh="${esc(w.name)}" inputmode="numeric" placeholder="0" value="${esc(old[w.name] || '')}" aria-label="الكمية لمستودع ${esc(w.name)}"></div>`).join('')
+    + '<div class="tot"><span>الإجمالي</span><b id="mTot">0</b></div>';
+  splitTotal();
+}
+const num = v => Number(String(v).trim().replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)) || 0);
+function splitTotal(){ let t = 0; $('mSplit').querySelectorAll('input').forEach(i => t += num(i.value) || 0); if ($('mTot')) $('mTot').textContent = fmt(t); }
+$('mSplit').addEventListener('input', splitTotal);
+let mKind = 'استلام';
+function setKind(k){ mKind = k; $('mKind').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.k === k))); $('mIn').hidden = k === 'جرد'; $('mCount').hidden = k !== 'جرد'; showBal(); }
+function showBal(){
+  const v = $('mPart').value, wh = $('mWh').value;
+  $('mSplit').querySelectorAll('[data-bal]').forEach(el => { const s = v ? stock(el.dataset.bal).find(x => key(x.category, x.part) === v) : null; el.textContent = v ? 'الرصيد الحالي ' + (s ? s.bal : 0) : ''; });
+  if (!v || !wh) { $('mBal').innerHTML = 'اختر المستودع والقطعة عشان يطلع رصيدها الحالي.'; return; }
+  const s = stock(wh).find(x => key(x.category, x.part) === v);
+  $('mBal').innerHTML = `الرصيد الحالي في مستودع ${esc(wh)}: <b>${sgn(s ? s.bal : 0)}</b><br>اكتب العدد الفعلي في الرف، والنظام يسجل الفرق.`;
+}
+$('mKind').onclick = e => { const b = e.target.closest('button'); if (b) setKind(b.dataset.k); };
+$('mPart').onchange = showBal;
+$('mWh').onchange = showBal;
+function alertMsg(id, t, bad){ const m = $(id); m.textContent = t; m.className = 'msg on ' + (bad ? 'bad' : 'ok'); }
+$('mSave').onclick = () => {
+  const v = $('mPart').value;
+  if (!v) return alertMsg('mMsg', 'اختر القطعة.', true);
+  const [category, part] = v.split('|');
+  let p;
+  if (mKind === 'جرد') {
+    if (!$('mWh').value) return alertMsg('mMsg', 'اختر المستودع.', true);
+    p = { kind:mKind, category, part, wh:$('mWh').value, qty:$('mQty').value, note:$('mNote').value };
+  } else {
+    const splits = [...$('mSplit').querySelectorAll('input')].filter(i => i.value.trim()).map(i => ({ wh:i.dataset.wh, qty:i.value }));
+    if (!splits.length) return alertMsg('mMsg', 'اكتب الكمية المستلمة لمستودع واحد على الأقل.', true);
+    p = { kind:mKind, category, part, splits, note:$('mNote').value };
+  }
+  const btn = $('mSave'); btn.disabled = true;
+  call('addStockMove', p).then(r => {
+    btn.disabled = false;
+    if (!r.ok) return alertMsg('mMsg', r.errors.join(' '), true);
+    D.moves = r.moves;
+    if (r.nochange) alertMsg('mMsg', 'الرصيد مطابق، ما فيه فرق يتسجل.');
+    else if (mKind === 'جرد') { alertMsg('mMsg', `تم الجرد في ${p.wh}: ${part}. الفرق ${sgn(r.qty, true)}.`); I.wh = p.wh; }
+    else alertMsg('mMsg', `تم استلام ${fmt(r.qty)} من ${part}: ` + p.splits.map(x => `${x.wh} ${num(x.qty)}`).join('، ') + '.');
+    $('mQty').value = ''; $('mNote').value = ''; $('mSplit').querySelectorAll('input').forEach(i => i.value = ''); splitTotal();
+    renderInv();
+  }).catch(e => { btn.disabled = false; alertMsg('mMsg', 'ما انحفظت الحركة: ' + (e.message || e), true); });
+};
+
+function renderMoves(){
+  const mv = D.moves.map((m, i) => [m, i]).filter(x => x[0].wh === I.wh).sort((a, b) => b[0].at.localeCompare(a[0].at) || b[1] - a[1]).map(x => x[0]).slice(0, 300);
+  $('movesTable').innerHTML = mv.length ? `<table><thead><tr><th>التاريخ</th><th>الحركة</th><th>القطعة</th><th>القسم</th><th>الكمية</th><th>ملاحظة</th><th>بواسطة</th><th></th></tr></thead><tbody>${mv.map(m =>
+    `<tr><td class="num">${esc(m.at)}</td><td><span class="pill ${m.kind === 'جرد' ? 'warn' : 'ok'}">${esc(m.kind)}</span></td><td>${esc(m.part)}</td><td class="muted nw">${esc(short(m.category))}</td><td class="num"><span class="${m.qty < 0 ? 'qty-neg' : 'qty-pos'}">${sgn(m.qty, true)}</span></td><td class="note">${esc(m.note)}</td><td class="muted nw">${esc(m.by)}</td><td><button class="ebtn" data-mv="${esc(m.id)}"><i class="ti ti-edit"></i>تعديل</button></td></tr>`).join('')}</tbody></table>`
+    : '<div class="empty"><i class="ti ti-history"></i>ما فيه حركات في هذا المستودع. سجّل أول استلام أو جرد من «حركة مخزون».</div>';
+}
+let MV = null;
+$('movesTable').addEventListener('click', e => {
+  const b = e.target.closest('[data-mv]'); if (!b) return;
+  const m = D.moves.find(x => x.id === b.dataset.mv); if (!m) return;
+  MV = m;
+  $('mvMeta').innerHTML = `<b>${esc(m.kind)}</b> · ${esc(m.part)} <span class="muted">(${esc(short(m.category))})</span><br>${esc(m.at)} · ${esc(m.by)}`;
+  $('mvWh').innerHTML = (D.warehouses || []).map(w => `<option value="${esc(w.name)}">${esc(w.name)}</option>`).join('');
+  $('mvWh').value = m.wh;
+  $('mvQtyLb').textContent = m.kind === 'جرد' ? 'الفرق المسجل في الجرد (+ زيادة / − نقص)' : 'الكمية المستلمة';
+  $('mvQty').value = m.qty; $('mvNote').value = m.note || '';
+  $('mvMsg').className = 'msg';
+  const d = $('mvDel'); d.dataset.sure = ''; d.classList.remove('sure'); d.innerHTML = '<i class="ti ti-trash"></i>حذف الحركة';
+  $('mvEdit').hidden = false; $('mvQty').focus();
+});
+const closeMv = () => { $('mvEdit').hidden = true; MV = null; };
+$('mvClose').onclick = closeMv;
+$('mvEdit').onclick = e => { if (e.target.id === 'mvEdit') closeMv(); };
+$('mvSave').onclick = () => {
+  const btn = $('mvSave'); btn.disabled = true;
+  call('updateStockMove', MV.id, { wh:$('mvWh').value, qty:$('mvQty').value, note:$('mvNote').value }).then(r => {
+    btn.disabled = false;
+    if (!r.ok) return alertMsg('mvMsg', r.errors.join(' '), true);
+    D.moves = r.moves; closeMv(); renderInv();
+  }).catch(e => { btn.disabled = false; alertMsg('mvMsg', 'ما انحفظ: ' + (e.message || e), true); });
+};
+$('mvDel').onclick = () => {
+  const d = $('mvDel');
+  if (d.dataset.sure !== '1') { d.dataset.sure = '1'; d.classList.add('sure'); d.innerHTML = '<i class="ti ti-trash"></i>اضغط مرة ثانية للحذف'; return; }
+  d.disabled = true;
+  call('deleteStockMove', MV.id).then(r => {
+    d.disabled = false;
+    if (!r.ok) return alertMsg('mvMsg', r.errors.join(' '), true);
+    D.moves = r.moves; closeMv(); renderInv();
+  }).catch(e => { d.disabled = false; alertMsg('mvMsg', 'ما انحذفت: ' + (e.message || e), true); });
+};
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (!$('mvEdit').hidden) closeMv(); if (!$('pEdit').hidden) $('pEdit').hidden = true; } });
+
+$('invXl').onclick = () => {
+  const rows = [];
+  (D.warehouses || []).forEach(w => stock(w.name).sort((a, b) => a.category.localeCompare(b.category, 'ar') || a.part.localeCompare(b.part, 'ar'))
+    .forEach(x => rows.push([w.name, x.category, x.part, x.bal, x.inQ, x.adj, x.used, x.used30, x.min == null ? '' : x.min, ST[x.status][2]])));
+  excel([
+    { name:'المخزون', header:['المستودع','القسم','القطعة','الرصيد','مستلم','جرد ±','مصروف','مصروف آخر 30 يوم','الحد الأدنى','الحالة'], rows },
+    { name:'حركات المخزون', header:['رقم الحركة','التاريخ','المستودع','الحركة','القسم','القطعة','الكمية','ملاحظة','بواسطة'], rows:D.moves.slice().sort((a, b) => b.at.localeCompare(a.at)).map(m => [m.id, m.at, m.wh, m.kind, m.category, m.part, m.qty, m.note, m.by]) }
+  ], 'invXlMsg', $('invXl'));
+};
+
+/* ========== تعديل سجل صيانة ========== */
+let EDIT = null;
+function catParts(cat){ const c = (D.catalog || []).find(x => x.category === cat); return c ? c.parts : []; }
+function partRow(it){
+  const cats = (D.catalog || []).map(c => c.category);
+  if (it.category && !cats.includes(it.category)) cats.push(it.category);
+  const parts = catParts(it.category).slice();
+  if (it.part && !parts.includes(it.part)) parts.push(it.part);
+  return `<div class="prow"><select data-k="category" aria-label="القسم">${cats.map(c => `<option value="${esc(c)}"${c === it.category ? ' selected' : ''}>${esc(short(c))}</option>`).join('')}</select>
+    <select data-k="part" aria-label="القطعة">${parts.map(p => `<option value="${esc(p)}"${p === it.part ? ' selected' : ''}>${esc(p)}</option>`).join('')}</select>
+    <input data-k="qty" inputmode="numeric" value="${esc(it.qty)}" aria-label="الكمية"><button class="rm" data-rm aria-label="حذف القطعة"><i class="ti ti-x"></i></button></div>`;
+}
+function readParts(){ return [...$('edParts').querySelectorAll('.prow')].map(r => ({ category:r.querySelector('[data-k=category]').value, part:r.querySelector('[data-k=part]').value, qty:r.querySelector('[data-k=qty]').value })); }
+function renderEditParts(items){ $('edParts').innerHTML = items.length ? items.map(partRow).join('') : '<div class="muted" style="padding:6px 0">بدون قطع</div>'; syncOil(); }
+function syncOil(){ const oil = readParts().some(p => p.category === (D.oilCategory || 'غيار زيت')); $('edOilF').hidden = !oil; }
+function openEdit(id){
+  const m = D.maint.find(x => x.id === id); if (!m) return;
+  EDIT = id;
+  $('edMeta').textContent = `${m.id} · ${m.date} ${m.time || ''} · ${m.by || ''}`;
+  $('edPlates').innerHTML = (D.bikes || []).map(b => `<option value="${esc(b.plate)}">`).join('');
+  $('edPlate').value = m.plate;
+  const regs = (D.regions || []).slice(); if (m.region && !regs.includes(m.region)) regs.push(m.region);
+  $('edRegion').innerHTML = regs.map(r => `<option value="${esc(r)}"${r === m.region ? ' selected' : ''}>${esc(r)}</option>`).join('');
+  const types = (D.types || []).slice(); if (m.type && !types.includes(m.type)) types.push(m.type);
+  $('edType').innerHTML = types.map(t => `<option value="${esc(t)}"${t === m.type ? ' selected' : ''}>${esc(t)}</option>`).join('');
+  $('edOdo').value = m.odometer || ''; $('edOil').value = m.nextOil || ''; $('edNote').value = m.note || '';
+  renderEditParts(D.parts.filter(p => p.id === id).map(p => ({ category:p.category, part:p.part, qty:p.qty })));
+  $('edMsg').className = 'msg'; $('edDel').classList.remove('sure'); $('edDel').innerHTML = '<i class="ti ti-trash"></i>حذف الصيانة';
+  $('edit').hidden = false; document.body.style.overflow = 'hidden';
+  setTimeout(() => $('edPlate').focus(), 50);
+}
+function closeEdit(){ $('edit').hidden = true; document.body.style.overflow = ''; EDIT = null; }
+$('edClose').onclick = closeEdit; $('edCancel').onclick = closeEdit;
+$('edit').addEventListener('click', e => { if (e.target.id === 'edit') closeEdit(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('edit').hidden) closeEdit(); });
+$('edAddPart').onclick = () => { const items = readParts(); const c = (D.catalog || [])[1] || (D.catalog || [])[0] || { category:'', parts:[''] }; items.push({ category:c.category, part:c.parts[0], qty:1 }); renderEditParts(items); };
+$('edParts').addEventListener('click', e => { if (e.target.closest('[data-rm]')) { e.target.closest('.prow').remove(); if (!$('edParts').querySelector('.prow')) renderEditParts([]); syncOil(); } });
+$('edParts').addEventListener('change', e => {
+  if (e.target.dataset.k === 'category') { const sel = e.target.closest('.prow').querySelector('[data-k=part]'); sel.innerHTML = catParts(e.target.value).map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join(''); }
+  syncOil();
+});
+$('edSave').onclick = () => {
+  const btn = $('edSave'); btn.disabled = true;
+  const payload = { plate:$('edPlate').value, region:$('edRegion').value, type:$('edType').value, odometer:$('edOdo').value, nextOil:$('edOilF').hidden ? '' : $('edOil').value, note:$('edNote').value, parts:readParts() };
+  call('updateMaintenance', EDIT, payload).then(r => {
+    btn.disabled = false;
+    if (!r.ok) return alertMsg('edMsg', r.errors.join(' '), true);
+    closeEdit(); refresh();
+  }).catch(e => { btn.disabled = false; alertMsg('edMsg', 'ما انحفظ التعديل: ' + (e.message || e), true); });
+};
+$('edDel').onclick = () => {
+  const b = $('edDel');
+  if (!b.classList.contains('sure')) { b.classList.add('sure'); b.innerHTML = '<i class="ti ti-alert-triangle"></i>اضغط مرة ثانية للحذف النهائي'; return; }
+  b.disabled = true;
+  call('deleteMaintenance', EDIT).then(r => {
+    b.disabled = false;
+    if (!r.ok) return alertMsg('edMsg', r.errors.join(' '), true);
+    closeEdit(); refresh();
+  }).catch(e => { b.disabled = false; alertMsg('edMsg', 'ما انحذفت: ' + (e.message || e), true); });
+};
+
+/* ========== الإعدادات ========== */
+let SET = null;
+function loadSettings(){
+  const r2w = regionWh();
+  SET = {
+    regions:(D.regions || []).map(r => ({ name:r, from:r, wh:r2w[r] || '' })),
+    warehouses:(D.warehouses || []).map(w => w.name),
+    admins:(D.admins || []).slice()
+  };
+  renderSettings();
+}
+function renderSettings(){
+  if (!SET) return;
+  const whOpts = sel => '<option value="">بدون مستودع</option>' + SET.warehouses.map(w => `<option value="${esc(w)}"${w === sel ? ' selected' : ''}>${esc(w)}</option>`).join('');
+  $('setRegions').innerHTML = `<div class="srow muted" style="margin-bottom:4px"><span>المدينة</span><span>تصرف من مستودع</span><span></span></div>` + SET.regions.map((r, i) =>
+    `<div class="srow"><input data-ri="${i}" data-k="name" value="${esc(r.name)}" aria-label="اسم المدينة"><select data-ri="${i}" data-k="wh" aria-label="المستودع">${whOpts(r.wh)}</select><button class="rm" data-rdel="${i}" aria-label="حذف ${esc(r.name)}"><i class="ti ti-trash"></i></button>${r.from && r.from !== r.name ? `<span class="ren">بيتغير «${esc(r.from)}» إلى «${esc(r.name)}» في كل الدبابات والسجلات</span>` : ''}</div>`).join('');
+  const used = {}; SET.regions.forEach(r => r.wh && (used[r.wh] = 1)); (D.moves || []).forEach(m => used[m.wh] = 1);
+  $('setWh').innerHTML = SET.warehouses.map((w, i) => `<div class="tagrow"><i class="ti ti-building-warehouse" style="color:var(--brand)"></i><span style="direction:rtl">${esc(w)}</span>${used[w] ? '<span class="muted" style="flex:0">مستخدم</span>' : `<button class="chiprm" data-wdel="${i}" aria-label="حذف ${esc(w)}"><i class="ti ti-trash"></i></button>`}</div>`).join('');
+  $('setAdmins').innerHTML = SET.admins.map((a, i) => `<div class="tagrow"><i class="ti ti-user" style="color:var(--brand)"></i><span>${esc(a)}</span>${a === (D.user || '') ? '<span class="muted" style="flex:0">أنت</span>' : `<button class="chiprm" data-adel="${i}" aria-label="حذف ${esc(a)}"><i class="ti ti-trash"></i></button>`}</div>`).join('');
+  const o = D.oldForm;
+  $('oldTxt').textContent = o ? 'أوراق Google Form القديم لسا في الشيت. الحذف نهائي ويصفّر النظام. لوحات الدبابات ما تنلمس، وقبل الحذف تنحفظ منطقة كل دباب من سجلاته القديمة عشان «تلقائي» يكمل يشتغل.' : 'ما فيه بيانات قديمة. النظام يشتغل على السجلات الجديدة، ولوحات الدبابات محفوظة.';
+  $('oldList').hidden = !o;
+  if (o) $('oldList').innerHTML = `بينحذف نهائياً:<ul>${(o.sheets || [o.sheet]).map(n => `<li>ورقة «${esc(n)}»</li>`).join('')}<li>كل سجلات الصيانة (${fmt(D.maint.length)}) والقطع المصروفة</li><li>كل حركات المخزون (${fmt(D.moves.length)})، والمخزون يبدأ من صفر</li></ul>`;
+  $('freshBtn2').hidden = !o;
+}
+$('setRegions').addEventListener('input', e => { const i = e.target.dataset.ri; if (i == null) return; SET.regions[i][e.target.dataset.k] = e.target.value; if (e.target.dataset.k === 'name') { const ren = e.target.parentElement.querySelector('.ren'); const r = SET.regions[i]; if (r.from && r.from !== r.name.trim()) { if (ren) ren.textContent = `بيتغير «${r.from}» إلى «${r.name.trim()}» في كل الدبابات والسجلات`; else e.target.parentElement.insertAdjacentHTML('beforeend', `<span class="ren">بيتغير «${esc(r.from)}» إلى «${esc(r.name.trim())}» في كل الدبابات والسجلات</span>`); } else if (ren) ren.remove(); } });
+$('setRegions').addEventListener('change', e => { const i = e.target.dataset.ri; if (i != null && e.target.dataset.k === 'wh') { SET.regions[i].wh = e.target.value; renderSettings(); } });
+$('setRegions').addEventListener('click', e => { const b = e.target.closest('[data-rdel]'); if (!b) return; SET.regions.splice(+b.dataset.rdel, 1); renderSettings(); });
+$('addRegion').onclick = () => { const v = $('newRegion').value.trim(); if (!v) return; if (SET.regions.some(r => r.name === v)) return alertMsg('setMsg', 'المدينة موجودة.', true); SET.regions.push({ name:v, from:'', wh:SET.warehouses[0] || '' }); $('newRegion').value = ''; renderSettings(); };
+$('setWh').addEventListener('click', e => { const b = e.target.closest('[data-wdel]'); if (!b) return; SET.warehouses.splice(+b.dataset.wdel, 1); renderSettings(); });
+$('addWh').onclick = () => { const v = $('newWh').value.trim(); if (!v) return; if (SET.warehouses.includes(v)) return alertMsg('setMsg', 'المستودع موجود.', true); SET.warehouses.push(v); $('newWh').value = ''; renderSettings(); };
+$('setAdmins').addEventListener('click', e => { const b = e.target.closest('[data-adel]'); if (!b) return; SET.admins.splice(+b.dataset.adel, 1); renderSettings(); });
+$('addAdmin').onclick = () => { const v = $('newAdmin').value.trim().toLowerCase(); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) return alertMsg('setMsg', 'اكتب إيميل صحيح.', true); if (!SET.admins.includes(v)) SET.admins.push(v); $('newAdmin').value = ''; renderSettings(); };
+$('setReset').onclick = () => { loadSettings(); $('setMsg').className = 'msg'; };
+$('setSave').onclick = () => {
+  const btn = $('setSave'); btn.disabled = true;
+  call('saveSettings', { regions:SET.regions.map(r => ({ name:r.name.trim(), from:r.from, wh:r.wh })), warehouses:SET.warehouses, admins:SET.admins }).then(r => {
+    btn.disabled = false;
+    if (!r.ok) return alertMsg('setMsg', r.errors.join(' '), true);
+    alertMsg('setMsg', 'انحفظت الإعدادات' + (r.renamed ? `، وتحدّث اسم المدينة في ${r.renamed} صف` : '') + '.');
+    refresh();
+  }).catch(e => { btn.disabled = false; alertMsg('setMsg', 'ما انحفظت: ' + (e.message || e), true); });
+};
+
+function deleteOld(btn){
+  if (btn.dataset.sure !== '1') { btn.dataset.sure = '1'; btn.classList.add('sure'); btn.dataset.label = btn.innerHTML; btn.innerHTML = '<i class="ti ti-trash"></i>متأكد؟ اضغط مرة ثانية للحذف النهائي'; setTimeout(() => { if (btn.dataset.sure === '1') { btn.dataset.sure = ''; btn.classList.remove('sure'); btn.innerHTML = btn.dataset.label; } }, 5000); return; }
+  btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2"></i>جاري الحذف…';
+  call('deleteOldData').then(r => {
+    btn.disabled = false; btn.dataset.sure = ''; btn.classList.remove('sure'); btn.innerHTML = btn.dataset.label;
+    let t = `انحذفت ${r.deleted.length} ورقة قديمة و${fmt(r.maint || 0)} سجل صيانة و${fmt(r.moves || 0)} حركة مخزون. النظام بدأ من الصفر، ولوحات الدبابات زي ما هي.`;
+    if (r.filled) t += ` وتعبّت منطقة ${r.filled} دباب من سجلاتها القديمة.`;
+    if (r.failed && r.failed.length) t += ` ما قدرت أحذف: ${r.failed.join('، ')} (انخفت بدالها).`;
+    refresh();
+    setTimeout(() => { goTab('settings'); alertMsg('setMsg', t); }, 700);
+  }).catch(e => { btn.disabled = false; btn.dataset.sure = ''; btn.classList.remove('sure'); btn.innerHTML = btn.dataset.label; alertMsg('setMsg', 'ما تم الحذف: ' + (e.message || e), true); });
+}
+$('freshBtn2').onclick = e => deleteOld(e.currentTarget);
+
+/* ========== تنبيه البيانات القديمة ========== */
+function renderSync(){
+  const o = D.oldForm;
+  $('sync').className = 'sync' + (o ? ' on' : '');
+  if (o) $('syncTxt').textContent = 'أوراق Google Form القديم لسا في الشيت. تقدر تمسحها نهائياً من الإعدادات، ولوحات الدبابات تبقى.';
+}
+$('syncGo').onclick = () => { goTab('settings'); $('freshBtn2').scrollIntoView({ behavior:'smooth', block:'center' }); };
+
+/* ========== الدبابات المسجلة ========== */
+function renderBikes(){
+  const stats = {};
+  D.maint.forEach(m => { const s = stats[m.plate] = stats[m.plate] || {n:0, q:0, last:'', odo:0}; s.n++; s.q += m.qty; if (m.date >= s.last) s.last = m.date; s.odo = Math.max(s.odo, m.odometer); });
+  const q = compact($('bkQ').value);
+  const list = (D.bikes || []).slice().sort((a, b) => (!a.region) - (!b.region) || a.region.localeCompare(b.region, 'ar') || a.plate.localeCompare(b.plate, 'ar'));
+  const rq = $('bkQ').value.trim();
+  const rows = list.filter(b => (!BK.noRegion || !b.region) && (!q || compact(b.plate).includes(q) || (rq && b.region.includes(rq))));
+  const none = list.filter(b => !b.region).length;
+  $('bkCount').innerHTML = `${list.length} دباب مسجل` + (none ? ` · <button class="lnk" id="bkNone" style="padding:0">${BK.noRegion ? 'عرض الكل' : none + ' بدون منطقة'}</button>` : '');
+  const regs = D.regions || [];
+  const regSel = b => `<select class="regsel${b.region ? '' : ' none'}" data-reg="${esc(b.plate)}" aria-label="منطقة ${esc(b.plate)}"><option value="">بدون منطقة</option>${regs.map(r => `<option value="${esc(r)}"${r === b.region ? ' selected' : ''}>${esc(r)}</option>`).join('')}</select>`;
+  if (!list.length) { $('bikes').innerHTML = '<div class="empty"><i class="ti ti-motorbike"></i>ما فيه دبابات مسجلة. أضف اللوحات فوق عشان تطلع في كرت الصيانة.</div>'; return; }
+  $('bikes').innerHTML = `<table><thead><tr><th>اللوحة</th><th>المنطقة</th><th>الصيانات</th><th>القطع المصروفة</th><th>آخر عداد</th><th>آخر صيانة</th><th></th></tr></thead><tbody>${rows.map(b => { const s = stats[b.plate];
+    return `<tr><td><span class="plate" data-plate="${esc(b.plate)}">${esc(b.plate)}</span></td><td>${regSel(b)}</td><td class="num">${s ? s.n : '<span class="muted">0</span>'}</td><td class="num">${s ? fmt(s.q) : '<span class="muted">-</span>'}</td><td class="num">${s ? fmt(s.odo) : '<span class="muted">-</span>'}</td><td class="num muted">${s ? esc(s.last) : 'ما فيه صيانات'}</td><td><button class="rmb" data-rm="${esc(b.plate)}"><i class="ti ti-trash"></i>إيقاف</button></td></tr>`; }).join('')}</tbody></table>` + (rows.length ? '' : '<div class="empty">ما فيه لوحة تطابق البحث.</div>');
+}
+const BK = { noRegion:false };
+$('bkQ').oninput = renderBikes;
+$('bkCount').addEventListener('click', e => { if (e.target.id === 'bkNone') { BK.noRegion = !BK.noRegion; renderBikes(); } });
+$('bikes').addEventListener('change', e => {
+  const sel = e.target.closest('.regsel'); if (!sel) return;
+  const plate = sel.dataset.reg, region = sel.value;
+  sel.disabled = true;
+  call('setBikeRegion', plate, region).then(r => {
+    sel.disabled = false;
+    if (!r.ok) return alertMsg('bkMsg', r.errors.join(' '), true);
+    D.bikes = r.bikes; sel.classList.toggle('none', !region); sel.classList.add('saved');
+    setTimeout(() => sel.classList.remove('saved'), 900);
+  }).catch(err => { sel.disabled = false; alertMsg('bkMsg', 'ما انحفظت المنطقة: ' + (err.message || err), true); });
+});
+$('bkAdd').onclick = () => {
+  const text = $('bkText').value.trim();
+  if (!text) return alertMsg('bkMsg', 'اكتب لوحة وحدة على الأقل.', true);
+  const btn = $('bkAdd'); btn.disabled = true;
+  call('addBikes', text, $('bkRegion').value).then(r => {
+    btn.disabled = false;
+    if (!r.ok) return alertMsg('bkMsg', r.errors.join(' '), true);
+    D.bikes = r.bikes;
+    const cnt = n => n === 1 ? 'لوحة وحدة' : n === 2 ? 'لوحتين' : n <= 10 ? n + ' لوحات' : n + ' لوحة';
+    const out = [];
+    if (r.added.length) out.push(`انضافت ${cnt(r.added.length)}`);
+    if (r.updated.length) out.push(`تحدّثت منطقة ${cnt(r.updated.length)}`);
+    if (r.same.length) out.push(`${cnt(r.same.length)} مسجلة من قبل`);
+    if (r.noRegion && r.noRegion.length) out.push(`${cnt(r.noRegion.length)} ما لها سجلات صيانة فانحفظت بدون منطقة، تقدر تحددها من الجدول`);
+    if (r.invalid.length) out.push(`ما انقبلت: ${r.invalid.join('، ')} (الصيغة: حروف اللوحة ثم 1 إلى 4 أرقام)`);
+    alertMsg('bkMsg', out.join('. ') + '.', !r.added.length && !r.updated.length);
+    $('bkText').value = r.invalid.join('\n');
+    renderBikes();
+  }).catch(e => { btn.disabled = false; alertMsg('bkMsg', 'ما انحفظت: ' + (e.message || e), true); });
+};
+$('bikes').addEventListener('click', e => {
+  const pl = e.target.closest('.plate');
+  if (pl) { R.plate = pl.dataset.plate; $('rPlate').value = R.plate; setQuick('all'); R.page = 1; renderRec(); goTab('rec'); return; }
+  const b = e.target.closest('[data-rm]'); if (!b) return;
+  const plate = b.dataset.rm;
+  if (b.dataset.sure !== '1') { b.dataset.sure = '1'; b.innerHTML = '<i class="ti ti-alert-triangle"></i>أكّد الإيقاف'; setTimeout(() => { if (b.isConnected) { b.dataset.sure = ''; b.innerHTML = '<i class="ti ti-trash"></i>إيقاف'; } }, 4000); return; }
+  b.disabled = true;
+  call('removeBike', plate).then(r => { D.bikes = r.bikes; alertMsg('bkMsg', `توقفت اللوحة ${plate}. سجل صياناتها يبقى في السجلات.`); renderBikes(); }).catch(err => { b.disabled = false; alertMsg('bkMsg', err.message || err, true); });
+});
+
+/* ========== بيانات المعاينة ========== */
+const DEMO_CAT = {
+  'غيار زيت':['تغيير زيت'],
+  'نظام الإضاءة والكهرباء':['حساس فرامل خلفي','حساس فرامل يسار','لمبة كشاف أمامي','لمبة سطب خلفي','لمبة إشارة','لمبة طبلون','بطارية','ملف كهرباء','منظم كهرباء','سلف','كتاوت ريليه','طقم كونتاك','مفتاح تسويتش','بوجي','فيشة بوجي'],
+  'محرك الدباب':['طقم سلندر','عمود كرنك','عمود كامة','عصافير مكينة','عمود عصافير المكينة','طلمبة زيت','جنزير مكينة تايمنج','شداد جنزير مكينة','طقم كلتش','صرة زيت مسمار تفريغ الزيت','صامولة كلتش','جهاز كلتش','كاربراتير'],
+  'الجوانات والوجوه والصوف':['جوان رأس مكينة','وجه غطاء رأس المكينة','وجه سلندر','وجه شداد','وجه كلتش','وجه مغنيط','وجه طلمبة زيت','جوان شكمان','صوفة زيت','طقم صوف زيت كامل','رمان بلي','رمانة إبرية'],
+  'نظام الفرامل والأسلاك':['سلك بنزين','سلك كلتش','سلك طبلون','سلك فرامل أمامي','قماشات فرامل','سيخ فرامل','سوستة سيخ فرامل','سوستة دواسة فرامل'],
+  'الهيكل الخارجي والإكسسوارات':['دركسيون مقود','مرايا يمين','مرايا يسار','مقبض فرامل يمين','مقبض كلتش يسار','قاعدة مقبض يمين','قاعدة مقبض يسار','مسكة مقبض يمين','مسكة مقبض يسار','جلدة قاعدة دركسيون فاصل','مساعدات أمامية','مثلث رقبة دركسيون','جسر علوي','رباط ماسك مساعد أمامي','مقعد (مرتبة)','زجاج أمامي','رفرف أمامي','رفرف خلفي','دعاسة رجل','قاعدة قدم خلفية','قاعدة قدم أمامي يمين','سوستة تكاية استاندر','مسمار ستاند','حامل جوال','اصطوب خلفي','شكمان','إشارة'],
+  'نظام النقل والدفع':['جنزير','ترس جنزير أمامي','طقم جنزير مع التروس'],
+  'الإطارات والعجلات':['كفر أمامي','كفر خلفي','تيوب (أنبوب داخلي)','بلف هواء','جنط أمامي','جنط خلفي','عمود جنط أمامي']
+};
+let DEMO = null;
+const WH = [{ name:'الغربية', regions:['جدة','مكة','الطائف'] }, { name:'الرياض', regions:['الرياض'] }, { name:'الشرقية', regions:['الدمام'] }];
+function demoData(){
+  let seed = 7; const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
+  const pick = a => a[Math.floor(rnd() * a.length)];
+  const regions = ['الرياض','جدة','مكة','الطائف','الدمام'];
+  const L = ['ق ب','ر س','ح د','ط ع','ك ل','م ن','ص ه','ب ا','د و','س ق','ع ر','ل م','ن ح','و ص'];
+  const bikes = L.map((l, i) => ({ plate:l + ' ' + (1000 + Math.floor(rnd() * 8999)), region:regions[i % 5], odo:3000 + Math.floor(rnd() * 20000) }));
+  const common = { 'نظام الإضاءة والكهرباء':['بطارية','بوجي','لمبة إشارة','لمبة كشاف أمامي','منظم كهرباء','سلف'], 'محرك الدباب':['طقم كلتش','كاربراتير','طلمبة زيت'], 'الجوانات والوجوه والصوف':['صوفة زيت','جوان شكمان'], 'نظام الفرامل والأسلاك':['قماشات فرامل','سلك كلتش','سلك بنزين','سلك فرامل أمامي'], 'الهيكل الخارجي والإكسسوارات':['مرايا يمين','مرايا يسار','رفرف أمامي','مقبض فرامل يمين','حامل جوال'], 'نظام النقل والدفع':['جنزير','طقم جنزير مع التروس'], 'الإطارات والعجلات':['كفر خلفي','كفر أمامي','تيوب (أنبوب داخلي)','بلف هواء'] };
+  const notes = ['', '', '', 'صوت في الفرامل الخلفية', 'تبديل بعد فحص دوري', 'حادث بسيط أثناء التوصيل', 'السائق أفاد بضعف في التشغيل'];
+  const maint = [], parts = [];
+  const end = new Date(), start = new Date(); start.setMonth(start.getMonth() - 4);
+  let n = 0;
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const per = rnd() < .6 ? 1 : rnd() < .3 ? 2 : 0;
+    for (let k = 0; k < per; k++) {
+      const b = pick(bikes); b.odo += 80 + Math.floor(rnd() * 260);
+      const crash = rnd() < .18, date = d.toISOString().slice(0, 10), type = crash ? 'صيانة حادث' : 'صيانة دورية';
+      const id = 'M-' + date.slice(2).replace(/-/g, '') + '-' + String(++n).padStart(4, '0');
+      const items = [];
+      const oil = !crash && rnd() < .5;
+      if (oil) items.push(['غيار زيت','تغيير زيت',1]);
+      const cnt = crash ? 2 + Math.floor(rnd() * 3) : Math.floor(rnd() * 3);
+      for (let j = 0; j < cnt; j++) { const c = pick(Object.keys(common)); items.push([c, pick(common[c]), rnd() < .2 ? 2 : 1]); }
+      const qty = items.reduce((a, x) => a + x[2], 0);
+      maint.push({ id, date, time:String(8 + Math.floor(rnd() * 10)).padStart(2, '0') + ':' + String(Math.floor(rnd() * 59)).padStart(2, '0'), by:'tech' + Math.ceil(rnd() * 4) + '@afmcoltd.com', plate:b.plate, region:b.region, type, odometer:b.odo, nextOil:oil ? b.odo + pick([1000,1500,2000]) : null, qty, note:pick(notes) });
+      items.forEach(x => parts.push({ id, date, plate:b.plate, region:b.region, type, category:x[0], part:x[1], qty:x[2] }));
+    }
+  }
+  const stockItems = [], moves = [];
+  const s0 = start.toISOString().slice(0, 10) + ' 09:00';
+  Object.keys(DEMO_CAT).forEach(c => DEMO_CAT[c].forEach(p => {
+    stockItems.push({ category:c, part:p, min: rnd() < .5 ? 3 + Math.floor(rnd() * 5) : null });
+    WH.forEach(w => {
+      const used = parts.filter(x => x.category === c && x.part === p && w.regions.includes(x.region)).reduce((a, x) => a + x.qty, 0);
+      const recv = rnd() < .1 ? Math.max(0, used - 1) : used + 2 + Math.floor(rnd() * 14);
+      if (recv) moves.push({ at:s0, kind:'استلام', category:c, part:p, qty:recv, note:'رصيد افتتاحي', by:'a.harara@afmcoltd.com', wh:w.name });
+    });
+  }));
+  moves.push({ at:daysAgo(12) + ' 10:15', kind:'جرد', category:'الإطارات والعجلات', part:'كفر خلفي', qty:-2, note:'جرد شهري', by:'a.harara@afmcoltd.com', wh:'الرياض' });
+  moves.push({ at:daysAgo(5) + ' 13:40', kind:'استلام', category:'نظام الفرامل والأسلاك', part:'قماشات فرامل', qty:20, note:'فاتورة 4471', by:'a.harara@afmcoltd.com', wh:'الغربية' });
+  moves.forEach((m, i) => m.id = 'S-' + String(i + 1).padStart(4, '0'));
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem('mm_demo_bikes') || 'null'); } catch (e) {}
+  const list = Array.isArray(saved) && saved.length ? saved : bikes.map(b => ({ plate:b.plate, region:b.region }));
+  try { localStorage.setItem('mm_demo_bikes', JSON.stringify(list)); } catch (e) {}
+  return { maint, parts, bikes:list, regions, stockItems, moves, warehouses:WH, mins:[], types:['صيانة دورية','صيانة حادث'], admins:['demo@afmcoltd.com','awwad@afmcoltd.com'], catalog:Object.keys(DEMO_CAT).map(c => ({ category:c, parts:DEMO_CAT[c].slice() })), catalogAll:stockItems.map(i => ({ category:i.category, part:i.part, active:true })), oilPart:'تغيير زيت', oldForm:{ sheet:'ردود النموذج 1', total:472, pending:0, sheets:['ردود النموذج 1','بيانات منسقة','قطع غيار الدبابات'] }, oilCategory:'غيار زيت', sheetUrl:'', user:'demo@afmcoltd.com', generatedAt:new Date().toISOString().slice(0, 16).replace('T', ' ') };
+}
+function demoNorm(raw){
+  const L2A = { A:'ا', B:'ب', J:'ح', D:'د', R:'ر', S:'س', X:'ص', T:'ط', E:'ع', G:'ق', K:'ك', L:'ل', Z:'م', N:'ن', H:'ه', U:'و', V:'ي' };
+  const lat = String(raw).toUpperCase().replace(/[\s\-.]/g, '');
+  if (/^[A-Z0-9]+$/.test(lat) && /[A-Z]/.test(lat)) { const l = lat.replace(/[^A-Z]/g, ''), d = lat.replace(/[^0-9]/g, ''); return l.length && l.length <= 3 && d.length && d.length <= 4 && l.split('').every(c => L2A[c]) ? l.split('').reverse().map(c => L2A[c]).join(' ') + ' ' + d : null; }
+  const s = String(raw).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
+  const L = s.match(/[ء-ي]/g) || [], Dg = s.replace(/[^0-9]/g, '');
+  if (L.length < 1 || L.length > 3 || Dg.length < 1 || Dg.length > 4 || L.some(l => 'ابحدرسصطعقكلمنهوي'.indexOf(l) === -1)) return null;
+  return L.join(' ') + ' ' + Dg;
+}
+function demoCall(fn, a, b, c){
+  if (fn === 'getDashboardData') return DEMO || (DEMO = demoData());
+  const save = () => { try { localStorage.setItem('mm_demo_bikes', JSON.stringify(D.bikes)); } catch (e) {} };
+  if (fn === 'addBikes') {
+    const r = { ok:true, added:[], updated:[], same:[], invalid:[] };
+    String(a).split(/[\n,،;]+/).map(x => x.trim()).filter(Boolean).forEach(line => {
+      const p = demoNorm(line); if (!p) return r.invalid.push(line);
+      const hist = {}; D.maint.forEach(m => hist[m.plate] = m.region);
+      const reg = b === '__auto' ? (hist[p] || '') : b;
+      const ex = D.bikes.find(x => x.plate === p);
+      if (ex) { if (ex.region === reg || (b === '__auto' && !reg)) r.same.push(p); else { ex.region = reg; r.updated.push(p); } } else { D.bikes.push({ plate:p, region:reg }); r.added.push(p); if (!reg) (r.noRegion = r.noRegion || []).push(p); }
+    });
+    save(); r.bikes = D.bikes; return r;
+  }
+  if (fn === 'removeBike') { D.bikes = D.bikes.filter(x => x.plate !== a); save(); return { ok:true, bikes:D.bikes }; }
+  if (fn === 'setMinLevel') return { ok:true };
+  const catOut = () => { D.stockItems = D.catalogAll.filter(i => i.active).map(i => ({ category:i.category, part:i.part, min:null })); const g = {}; D.stockItems.forEach(i => (g[i.category] = g[i.category] || []).push(i.part)); D.catalog = Object.keys(g).map(c => ({ category:c, parts:g[c] })); return { stockItems:D.stockItems, catalog:D.catalog, catalogAll:D.catalogAll }; };
+  if (fn === 'addCatalogItems') {
+    const r = { ok:true, category:a, added:[], reactivated:[], exists:[] };
+    [...new Set(String(b).split(/[\n،,]+/).map(x => x.trim()).filter(Boolean))].forEach(n => {
+      const ex = D.catalogAll.find(i => i.category === a && compact(i.part) === compact(n));
+      if (ex && ex.active) r.exists.push(n); else if (ex) { ex.active = true; r.reactivated.push(ex.part); } else { D.catalogAll.push({ category:a, part:n, active:true }); r.added.push(n); }
+    });
+    return Object.assign(r, catOut());
+  }
+  if (fn === 'setCatalogActive') { const i = D.catalogAll.find(x => x.category === a && x.part === b); if (i) i.active = c; return Object.assign({ ok:true }, catOut()); }
+  if (fn === 'renameCatalogItem') {
+    const [cat, part, nc, np] = arguments.length > 4 ? [a, b, c, arguments[4]] : [a, b, c, ''];
+    if (D.catalogAll.some(i => i.category === nc && i.part === np && !(i.category === cat && i.part === part))) return { ok:false, errors:['فيه قطعة بنفس الاسم «' + np + '» في هذا القسم.'] };
+    const i = D.catalogAll.find(x => x.category === cat && x.part === part); if (i) { i.category = nc; i.part = np; }
+    return Object.assign({ ok:true }, catOut());
+  }
+  if (fn === 'setDashPassword') return { ok:true, hasPass:!!a };
+  if (fn === 'deleteOldData') { const n = (D.oldForm.sheets || []).length; D.oldForm = null; return { ok:true, deleted:Array(n).fill(''), failed:[], filled:4 }; }
+  if (fn === 'updateMaintenance') {
+    const m = D.maint.find(x => x.id === a); if (!m) return { ok:false, errors:['ما لقيت الصيانة.'] };
+    const p = demoNorm(b.plate); if (!p) return { ok:false, errors:['رقم اللوحة غير صحيح.'] };
+    Object.assign(m, { plate:p, region:b.region, type:b.type, odometer:Number(b.odometer) || 0, nextOil:b.nextOil ? Number(b.nextOil) : null, note:b.note });
+    D.parts = D.parts.filter(x => x.id !== a).concat(b.parts.filter(x => x.part).map(x => ({ id:a, date:m.date, plate:p, region:m.region, type:m.type, category:x.category, part:x.part, qty:Number(x.qty) || 1 })));
+    m.qty = D.parts.filter(x => x.id === a).reduce((s, x) => s + x.qty, 0);
+    return { ok:true, id:a };
+  }
+  if (fn === 'deleteMaintenance') { D.maint = D.maint.filter(x => x.id !== a); D.parts = D.parts.filter(x => x.id !== a); return { ok:true, id:a }; }
+  if (fn === 'saveSettings') {
+    const ren = {}; a.regions.forEach(r => { if (r.from && r.from !== r.name) ren[r.from] = r.name; });
+    let n = 0; [D.bikes, D.maint, D.parts].forEach(list => list.forEach(x => { if (ren[x.region]) { x.region = ren[x.region]; n++; } }));
+    D.regions = a.regions.map(r => r.name); D.admins = a.admins;
+    D.warehouses = a.warehouses.map(w => ({ name:w, regions:a.regions.filter(r => r.wh === w).map(r => r.name) }));
+    return { ok:true, renamed:n };
+  }
+  if (fn === 'setBikeRegion') { const x = D.bikes.find(y => y.plate === a); if (x) x.region = b; save(); return { ok:true, bikes:D.bikes }; }
+  const toN = v => Number(String(v).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
+  const stamp = () => today() + ' ' + new Date().toTimeString().slice(0, 5);
+  const nid = () => 'S-D' + String(Date.now()).slice(-6) + Math.floor(Math.random() * 90 + 10);
+  if (fn === 'addStockMove') {
+    if (a.kind === 'جرد') {
+      const n = toN(a.qty);
+      if (String(a.qty).trim() === '' || !isFinite(n) || n !== Math.round(n) || n < 0) return { ok:false, errors:['اكتب الرصيد الفعلي رقم صحيح (0 أو أكثر).'] };
+      const s = stock(a.wh).find(x => x.category === a.category && x.part === a.part); const qty = n - (s ? s.bal : 0);
+      if (!qty) return { ok:true, nochange:true, moves:D.moves };
+      D.moves = D.moves.concat([{ id:nid(), at:stamp(), kind:a.kind, category:a.category, part:a.part, qty, note:a.note || '', by:'demo@afmcoltd.com', wh:a.wh }]);
+      return { ok:true, qty, moves:D.moves };
+    }
+    const sp = a.splits.map(x => ({ wh:x.wh, qty:toN(x.qty) })).filter(x => x.qty !== 0);
+    if (!sp.length) return { ok:false, errors:['اكتب الكمية المستلمة لمستودع واحد على الأقل.'] };
+    const bad = sp.find(x => !isFinite(x.qty) || x.qty < 0 || x.qty !== Math.round(x.qty)); if (bad) return { ok:false, errors:['الكمية لازم تكون رقم صحيح موجب (' + bad.wh + ').'] };
+    D.moves = D.moves.concat(sp.map(x => ({ id:nid(), at:stamp(), kind:a.kind, category:a.category, part:a.part, qty:x.qty, note:a.note || '', by:'demo@afmcoltd.com', wh:x.wh })));
+    return { ok:true, qty:sp.reduce((t, x) => t + x.qty, 0), count:sp.length, moves:D.moves };
+  }
+  if (fn === 'updateStockMove') {
+    const m = D.moves.find(x => x.id === a); if (!m) return { ok:false, errors:['ما لقيت الحركة.'] };
+    const q = toN(b.qty); if (!isFinite(q) || q !== Math.round(q) || q === 0 || (m.kind === 'استلام' && q < 0)) return { ok:false, errors:['الكمية لازم تكون رقم صحيح وما تكون صفر' + (m.kind === 'استلام' ? '، وموجبة في الاستلام.' : '.')] };
+    Object.assign(m, { wh:b.wh, qty:q, note:b.note }); D.moves = D.moves.slice(); return { ok:true, moves:D.moves };
+  }
+  if (fn === 'deleteStockMove') { D.moves = D.moves.filter(x => x.id !== a); return { ok:true, moves:D.moves }; }
+  throw new Error('غير متاح في المعاينة');
+}
+
+setQuick('month');
+refresh();
+}
+</script>
+</body>
+</html>
